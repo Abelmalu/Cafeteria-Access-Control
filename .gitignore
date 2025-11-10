@@ -1,0 +1,10 @@
+.env
+.env.local
+.idea/
+.vscode/
+*.swp
+/bin/
+/pkg/
+*.test
+*.out
+/vendor/
