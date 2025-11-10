@@ -15,7 +15,7 @@ type Config struct {
 	DBName     string
 }
 
-func LoadConfig(*Config, error) (*Config, error) {
+func LoadConfig() (*Config, error) {
 
 	cfg := &Config{}
 	var err error
