@@ -1,26 +1,18 @@
 package main
 
 import (
-	"database/sql"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
 	"log"
-	"net/http"
-
-	"github.com/abelmalu/CafeteriaAccessControl/config"
 )
 
-type App struct {
-	Config *config.Config
-	DB     *sql.DB
-	Server *http.Server
-}
-
 func main() {
-
-	cfg, err := config.LoadConfig()
-
+	// Initialize the application: loads config, connects DB, sets up routes
+	application, err := app.NewApp()
 	if err != nil {
-
-		log.Fatalf("Failed to connect to DB: %v", err)
+		log.Fatalf("Application startup failed: %v", err)
 	}
+	defer application.DB.Close()
 
+	// Start the HTTP server
+	application.Run()
 }

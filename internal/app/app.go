@@ -1,1 +1,99 @@
 package app
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"net/http"
+	//"os"
+	"strconv"
+	"time"
+
+	"github.com/abelmalu/CafeteriaAccessControl/config"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
+)
+
+// App holds the application dependencies and router.
+// This is the main state of the running application.
+type App struct {
+	Config *config.Config
+	Router *http.ServeMux // The core Go HTTP router
+	DB     *sql.DB        // The database connection pool
+}
+
+// NewApp loads configuration and initializes the application structure.
+// This function performs the core setup and dependency injection.
+func NewApp() (*App, error) {
+	config, err := config.LoadConfig()
+
+	if err != nil {
+
+		log.Fatalf("Failed to connect to DB: %v", err)
+	}
+
+	app := &App{Config: config, Router: http.NewServeMux()}
+
+	// 1. Initialize Database Connection: Must be done first as all other layers depend on it.
+	if err := app.initDB(); err != nil {
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
+	}
+
+	// 2. Setup all layers and routes: Performs the dependency injection.
+	app.setupRoutes()
+
+	return app, nil
+}
+
+// initDB establishes the database connection and ensures connection pool health.
+func (a *App) initDB() error {
+	connStr := fmt.Sprintf("%s:%s@%s/%s?parseTime=true",
+		a.Config.DBUser, a.Config.DBPassword, a.Config.DBHost, a.Config.DBName)
+
+	db, err := sql.Open("mysql", connStr)
+	if err != nil {
+		return err // Handle connection error
+	}
+
+	// Optimize connection pool settings for production
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	// Verify connection is alive
+	if err = db.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	a.DB = db
+	log.Println("Successfully connected to MySQL database.")
+	return nil
+}
+
+// setupRoutes initializes all concrete implementations and wires them together.
+func (a *App) setupRoutes() {
+
+	repo := mysql.NewMySqlRepository(a.DB)
+	log.Println("Repository initialized.")
+
+	// Service initialization creates the 'adminSvc' variable
+	adminSvc := service.NewAdminService(repo)
+
+	// ✅ FIX 1: Pass the initialized service variable (adminSvc) into the handler constructor
+	adminHandler := api.NewAdminHandler(adminSvc)
+
+	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
+	a.Router.Handle("POST /api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
+}
+
+// Run starts the HTTP server on the configured port.
+func (a *App) Run() {
+	log.Printf("Server listening on :%s", a.Config.ServerPort)
+	ServerPort := strconv.Itoa(a.Config.ServerPort)
+
+	// The router (a.Router) handles all the routes and middleware defined above.
+	if err := http.ListenAndServe(":"+ServerPort, a.Router); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
+}
