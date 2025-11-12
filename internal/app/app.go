@@ -3,17 +3,15 @@ package app
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"net/http"
-	//"os"
-	"strconv"
-	"time"
-
 	"github.com/abelmalu/CafeteriaAccessControl/config"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
 	mysqlDriver "github.com/go-sql-driver/mysql"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 // App holds the application dependencies and router.
