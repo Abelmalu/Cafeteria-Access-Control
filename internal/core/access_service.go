@@ -1,4 +1,4 @@
 package core
 
-type AccessService struct {
+type AccessService interface {
 }

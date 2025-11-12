@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/abelmalu/CafeteriaAccessControl/config"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	"log"
@@ -99,8 +101,13 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 // setupRoutes initializes all concrete implementations and wires them together.
 func (a *App) setupRoutes() {
 
-	repo := mysql.NewMySqlRepository(a.DB)
-	log.Println("Repository initialized.")
+
+	
+	repo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
+	if err != nil {
+		log.Fatalf("FATAL: Failed to initialize repository for type %s: %v", a.Config.DBType, err)
+	}
+	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
 
 	// Service initialization creates the 'adminSvc' variable
 	adminSvc := service.NewAdminService(repo)
@@ -112,6 +119,8 @@ func (a *App) setupRoutes() {
 	a.Router.Handle("/api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
 }
 
+
+
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
 	log.Printf("Server listening on :%s", a.Config.ServerPort)
@@ -120,5 +129,20 @@ func (a *App) Run() {
 	// The router (a.Router) handles all the routes and middleware defined above.
 	if err := http.ListenAndServe(":"+ServerPort, a.Router); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
+	}
+}
+
+// instantiates the correct concrete implementation based on the dbType string.
+func NewRepositoryFactory(dbType string, db *sql.DB) (core.AccessRepository, error) {
+	switch dbType {
+	case "mysql":
+		// Returns the concrete *mysql.MySqlRepository, which implements core.Repository
+		return mysql.NewMySqlRepository(db), nil
+	case "postgres":
+		// Returns the concrete *postgres.PostgresRepository, which implements core.Repository
+		return postgres.NewPostgresRepository(db), nil
+	// You can add 'inmemory' for testing or 'sqlite' here
+	default:
+		return nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
 	}
 }
