@@ -1,9 +1,11 @@
 package api
 
 import (
-	"encoding/json"
+	//"encoding/json"
+	"fmt"
+
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
-	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
+	//"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 	"net/http"
 )
 
@@ -16,18 +18,20 @@ func NewAdminHandler(service core.AdminService) *AdminHandler {
 }
 
 func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
-	var student models.Student
+	// var student models.Student
 
-	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
+	// if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+	// 	http.Error(w, "invalid input", http.StatusBadRequest)
+	// 	return
+	// }
 
-	created, err := h.service.CreateStudent(r.Context(), &student)
-	if err != nil {
-		http.Error(w, "failed to create student", http.StatusInternalServerError)
-		return
-	}
+	// created, err := h.service.CreateStudent(r.Context(), &student)
+	// if err != nil {
+	// 	http.Error(w, "failed to create student", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	json.NewEncoder(w).Encode(created)
+	// json.NewEncoder(w).Encode(created)
+
+	fmt.Fprintf(w, "welcome to the new world")
 }

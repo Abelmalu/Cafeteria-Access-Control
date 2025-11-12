@@ -13,6 +13,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	DBType     string
 }
 
 func LoadConfig() (*Config, error) {
@@ -65,9 +66,12 @@ func LoadConfig() (*Config, error) {
 
 	}
 	cfg.DBPassword = os.Getenv("DB_Password")
-	if cfg.DBPassword == "" {
 
-		return nil, fmt.Errorf("DB_Password environment variable is required")
+	cfg.DBType = os.Getenv("DB_TYPE")
+
+	if cfg.DBType == "" {
+
+		return nil, fmt.Errorf("DB_TYPE  environment variable is required")
 
 	}
 

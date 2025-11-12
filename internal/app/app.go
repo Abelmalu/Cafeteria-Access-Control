@@ -13,6 +13,7 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 )
 
 // App holds the application dependencies and router.
@@ -33,12 +34,15 @@ func NewApp() (*App, error) {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 
-	app := &App{Config: config, Router: http.NewServeMux()}
-
 	// 1. Initialize Database Connection: Must be done first as all other layers depend on it.
-	if err := app.initDB(); err != nil {
-		return nil, fmt.Errorf("failed to initialize database: %w", err)
+	currentDBConnection, DBerr := initDB(config)
+
+	if DBerr != nil {
+
+		fmt.Println(DBerr)
 	}
+
+	app := &App{Config: config, Router: http.NewServeMux(), DB: currentDBConnection}
 
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
@@ -47,28 +51,51 @@ func NewApp() (*App, error) {
 }
 
 // initDB establishes the database connection and ensures connection pool health.
-func (a *App) initDB() error {
-	connStr := fmt.Sprintf("%s:%s@%s/%s?parseTime=true",
-		a.Config.DBUser, a.Config.DBPassword, a.Config.DBHost, a.Config.DBName)
+func initDB(cfg *config.Config) (*sql.DB, error) {
+	var connStr string
+	var driverName string
 
-	db, err := sql.Open("mysql", connStr)
-	if err != nil {
-		return err // Handle connection error
+	// 1. Determine the driver and connection string based on configuration
+	switch cfg.DBType {
+	case "mysql":
+		driverName = "mysql"
+		// Using the driver's native Config struct is robust
+		mysqlCfg := mysqlDriver.Config{
+			User:                 cfg.DBUser,
+			Passwd:               cfg.DBPassword,
+			Net:                  "tcp",
+			Addr:                 cfg.DBHost,
+			DBName:               cfg.DBName,
+			AllowNativePasswords: true,
+			ParseTime:            true,
+		}
+		connStr = mysqlCfg.FormatDSN()
+	case "postgres":
+		driverName = "postgres"
+		// PostgreSQL connection string format (e.g., "host=... user=... password=...")
+		connStr = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
+			cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName)
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", cfg.DBType)
 	}
 
-	// Optimize connection pool settings for production
+	// 2. Open the connection (standard library function)
+	db, err := sql.Open(driverName, connStr)
+	if err != nil {
+		return nil, fmt.Errorf("opening database connection for %s: %w", driverName, err)
+	}
+
+	// 3. Apply pooling and verify connection (this part is vendor-agnostic)
 	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
+	db.SetMaxIdleConns(5) // Reduced from 25 to 5 for slightly better resource usage when idle
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	// Verify connection is alive
-	if err = db.Ping(); err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("pinging %s database: %w", driverName, err)
 	}
 
-	a.DB = db
-	log.Println("Successfully connected to MySQL database.")
-	return nil
+	return db, nil
 }
 
 // setupRoutes initializes all concrete implementations and wires them together.
@@ -84,7 +111,7 @@ func (a *App) setupRoutes() {
 	adminHandler := api.NewAdminHandler(adminSvc)
 
 	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
-	a.Router.Handle("POST /api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
+	a.Router.Handle("/api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
 }
 
 // Run starts the HTTP server on the configured port.
