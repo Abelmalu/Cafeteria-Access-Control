@@ -3,6 +3,8 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
+
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 )
 
@@ -20,6 +22,7 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 	// This is where the actual SQL INSERT statement goes.
 	query := `INSERT INTO students (student_id, rfid_tag, batch_id) VALUES ($1, $2, $3) RETURNING id;`
 	// ... execute query using r.DB
+	fmt.Println("student created")
 	r.DB.Exec(query)
 	return student, nil // return the created student
 }

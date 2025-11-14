@@ -13,6 +13,11 @@ type AdminService struct {
 	repo core.AccessRepository
 }
 
+// NewAdminService creates a new instance of AdminService.
+func NewAdminService(repo core.AccessRepository) *AdminService {
+	return &AdminService{repo: repo}
+}
+
 // CreateBatch implements core.AdminService.
 func (s *AdminService) CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error) {
 	panic("unimplemented")
@@ -31,11 +36,6 @@ func (s *AdminService) CreateMeal(ctx context.Context, student *models.Student) 
 // RegisterDevice implements core.AdminService.
 func (s *AdminService) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
 	panic("unimplemented")
-}
-
-// NewAdminService creates a new instance of AdminService.
-func NewAdminService(repo core.AccessRepository) *AdminService {
-	return &AdminService{repo: repo}
 }
 
 func (s *AdminService) CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error) {

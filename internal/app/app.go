@@ -10,6 +10,7 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
 	mysqlDriver "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
 	"strconv"
@@ -71,7 +72,7 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 		}
 		connStr = mysqlCfg.FormatDSN()
 	case "postgres":
-		driverName = "postgres"
+		driverName = "pgx"
 		// PostgreSQL connection string format (e.g., "host=... user=... password=...")
 		connStr = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
 			cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName)
@@ -101,8 +102,6 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 // setupRoutes initializes all concrete implementations and wires them together.
 func (a *App) setupRoutes() {
 
-
-	
 	repo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
 	if err != nil {
 		log.Fatalf("FATAL: Failed to initialize repository for type %s: %v", a.Config.DBType, err)
@@ -118,8 +117,6 @@ func (a *App) setupRoutes() {
 	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
 	a.Router.Handle("/api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
 }
-
-
 
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
