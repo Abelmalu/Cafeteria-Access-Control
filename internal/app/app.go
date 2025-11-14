@@ -9,6 +9,8 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
+
+	"github.com/go-chi/chi/v5"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
 	"log"
@@ -21,8 +23,8 @@ import (
 // This is the main state of the running application.
 type App struct {
 	Config *config.Config
-	Router *http.ServeMux // The core Go HTTP router
-	DB     *sql.DB        // The database connection pool
+	Router *chi.Mux // The core Go HTTP router
+	DB     *sql.DB  // The database connection pool
 }
 
 // NewApp loads configuration and initializes the application structure.
@@ -43,7 +45,7 @@ func NewApp() (*App, error) {
 		fmt.Println(DBerr)
 	}
 
-	app := &App{Config: config, Router: http.NewServeMux(), DB: currentDBConnection}
+	app := &App{Config: config, Router: chi.NewRouter(), DB: currentDBConnection}
 
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
@@ -115,7 +117,7 @@ func (a *App) setupRoutes() {
 	adminHandler := api.NewAdminHandler(adminSvc)
 
 	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
-	a.Router.Handle("/api/admin/student", http.HandlerFunc(adminHandler.CreateStudent))
+	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
 }
 
 // Run starts the HTTP server on the configured port.
