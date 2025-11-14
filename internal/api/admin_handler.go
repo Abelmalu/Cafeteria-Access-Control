@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	//"fmt"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -21,7 +21,9 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
 
 	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+
 		http.Error(w, "invalid input", http.StatusBadRequest)
+
 		return
 	}
 
@@ -33,5 +35,4 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(created)
 
-	fmt.Fprintf(w, "welcome to the new world")
 }
