@@ -4,30 +4,25 @@
 -- Table for different cafeterias
 CREATE TABLE IF NOT EXISTS cafeterias (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  -- Unique ID for the location
-`name` VARCHAR(100) NOT NULL,
-`location` VARCHAR(100) NOT NULL
+careteria_name VARCHAR(100) NOT NULL,
+careteria_location VARCHAR(100) NOT NULL
 );
 
 
 
 -- Table for batches in university 
 CREATE TABLE IF NOT EXISTS batches(
-id INT NOT NULL 
-AUTO_INCREMENT PRIMARY KEY,  -- Unique Id for batch
-`name` VARCHAR(100) NOT NULL,
-cafeteria_id INT NOT NULL,
-FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
-
-
-
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  -- Cleaned up line break
+    batches_name VARCHAR(100) NOT NULL,
+    cafeteria_id INT NOT NULL,
+    FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
 );
-
 
 -- Table for different devices used for scanning 
 CREATE TABLE IF NOT EXISTS devices(
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
 `name`  VARCHAR(100) NOT NULL,
-serial_number VARCHAR NOT NULL,
+serial_number VARCHAR(100) NOT NULL,
 cafeteria_id INT NOT NULL,
 FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
 );
@@ -40,7 +35,7 @@ CREATE TABLE IF NOT EXISTS meals(
     `name` VARCHAR(100) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL
-)
+);
 
 
 
@@ -53,7 +48,7 @@ last_name VARCHAR(100) NOT NULL,
 rfid_tag VARCHAR(100) NOT NULL,
 image_url VARCHAR(100) NOT NULL,
 batch_id INT NOT NULL,
-FOREIGN KEY (batch_id) REFERENCES batches (id )
+FOREIGN KEY (batch_id) REFERENCES batches (id)
 
 );
 
