@@ -13,11 +13,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
+
+const ddlFile = "sql/ddl.sql"
 
 // App holds the application dependencies and router.
 // This is the main state of the running application.
@@ -145,4 +149,42 @@ func NewRepositoryFactory(dbType string, db *sql.DB) (core.AccessRepository, err
 	default:
 		return nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
 	}
+}
+
+// --- Migration Helpers ---
+
+// runMigrations reads the content of the DDL file and executes it.
+// This function ensures the base schema is present before the app starts.
+func runMigrations(db *sql.DB) error {
+	log.Printf("INFO: Running migrations using DDL file: %s", ddlFile)
+
+	sqlContent, err := readSQLFile(ddlFile)
+	if err != nil {
+		return fmt.Errorf("failed to read DDL file %s: %w", ddlFile, err)
+	}
+
+	// Execute the entire content of the SQL file as a single block.
+	// This relies on the database driver to correctly parse the semi-colons.
+	_, err = db.Exec(sqlContent)
+	if err != nil {
+		return fmt.Errorf("failed to execute DDL: %w", err)
+	}
+
+	return nil
+}
+
+// readSQLFile is a simple utility to read the entire file content into a string.
+func readSQLFile(filepath string) (string, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return "", fmt.Errorf("could not open file: %w", err)
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return "", fmt.Errorf("could not read file content: %w", err)
+	}
+
+	return string(content), nil
 }
