@@ -13,15 +13,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
+	_"embed"
 )
 
-const ddlFile = "sql/ddl.sql"
+//go:embed sql/ddl.sql 
+var ddlFile string
 
 // App holds the application dependencies and router.
 // This is the main state of the running application.
@@ -43,6 +43,13 @@ func NewApp() (*App, error) {
 
 	// 1. Initialize Database Connection: Must be done first as all other layers depend on it.
 	currentDBConnection, DBerr := initDB(config)
+
+	migrationsError := runMigrations(currentDBConnection)
+
+	if migrationsError != nil{
+
+		log.Fatal(migrationsError)
+	}
 
 	if DBerr != nil {
 
@@ -75,6 +82,7 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 			DBName:               cfg.DBName,
 			AllowNativePasswords: true,
 			ParseTime:            true,
+			MultiStatements: true,
 		}
 		connStr = mysqlCfg.FormatDSN()
 	case "postgres":
@@ -155,36 +163,36 @@ func NewRepositoryFactory(dbType string, db *sql.DB) (core.AccessRepository, err
 
 // runMigrations reads the content of the DDL file and executes it.
 // This function ensures the base schema is present before the app starts.
+// runMigrations executes the DDL script that was embedded into the 'ddlContent' string.
 func runMigrations(db *sql.DB) error {
-	log.Printf("INFO: Running migrations using DDL file: %s", ddlFile)
+	log.Printf("INFO: Running migrations from embedded DDL content...")
 
-	sqlContent, err := readSQLFile(ddlFile)
-	if err != nil {
-		return fmt.Errorf("failed to read DDL file %s: %w", ddlFile, err)
+	if ddlFile == "" {
+		return fmt.Errorf("ddl content is empty; check the //go:embed directive and file content")
 	}
 
 	// Execute the entire content of the SQL file as a single block.
-	// This relies on the database driver to correctly parse the semi-colons.
-	_, err = db.Exec(sqlContent)
+	// We execute the string content directly, avoiding os.Open.
+	_, err := db.Exec(ddlFile) 
 	if err != nil {
+		// Log the error returned by the database driver
 		return fmt.Errorf("failed to execute DDL: %w", err)
 	}
 
 	return nil
 }
+// // readSQLFile is a simple utility to read the entire file content into a string.
+// func readSQLFile(filepath string) (string, error) {
+// 	file, err := os.Open(filepath)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not open file: %w", err)
+// 	}
+// 	defer file.Close()
 
-// readSQLFile is a simple utility to read the entire file content into a string.
-func readSQLFile(filepath string) (string, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return "", fmt.Errorf("could not open file: %w", err)
-	}
-	defer file.Close()
+// 	content, err := io.ReadAll(file)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not read file content: %w", err)
+// 	}
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return "", fmt.Errorf("could not read file content: %w", err)
-	}
-
-	return string(content), nil
-}
+// 	return string(content), nil
+// }
