@@ -24,8 +24,15 @@ func (s *AdminService) CreateBatch(ctx context.Context, student *models.Student)
 }
 
 // CreateCafeteria implements core.AdminService.
-func (s *AdminService) CreateCafeteria(ctx context.Context, location *models.Device) (*models.Cafeteria, error) {
-	panic("unimplemented")
+func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
+	if cafeteria.Id == 0 || cafeteria.Name == "" {
+
+		return nil, errors.New("Cafeteria id and/or Cafeteria name are required")
+
+	}
+	s.repo.CreateCafeteria(ctx, cafeteria)
+
+	return cafeteria, nil
 }
 
 // CreateMeal implements core.AdminService.

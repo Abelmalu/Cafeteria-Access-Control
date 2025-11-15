@@ -12,5 +12,5 @@ type AccessRepository interface {
 	// CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error)
 	// RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)
 	// CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error)
-	// CreateCafeteria(ctx context.Context, location *models.Device) (*models.Cafeteria, error)
+	CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error)
 }

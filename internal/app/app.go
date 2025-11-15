@@ -118,11 +118,12 @@ func (a *App) setupRoutes() {
 
 	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
 	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
+	a.Router.Post("/api/admin/create/cafeteria", http.HandlerFunc(adminHandler.CreateCafeteria))
 }
 
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
-	log.Printf("Server listening on :%s", a.Config.ServerPort)
+	log.Printf("Server listening on :%v", a.Config.ServerPort)
 	ServerPort := strconv.Itoa(a.Config.ServerPort)
 
 	// The router (a.Router) handles all the routes and middleware defined above.

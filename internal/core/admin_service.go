@@ -24,5 +24,5 @@ type AdminService interface {
 	CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error)
 
 	// creates  cafeteria/dining hall record.
-	CreateCafeteria(ctx context.Context, location *models.Device) (*models.Cafeteria, error)
+	CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error)
 }

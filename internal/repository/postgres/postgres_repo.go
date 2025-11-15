@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 )
- 
 
 type PostgresRepository struct {
 	DB *sql.DB
@@ -23,4 +22,9 @@ func (r *PostgresRepository) CreateStudent(ctx context.Context, student *models.
 	// ... execute query using r.DB
 	r.DB.Exec(query)
 	return student, nil // return the created student
+}
+
+func (r *PostgresRepository) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
+
+	panic("unimplemented")
 }

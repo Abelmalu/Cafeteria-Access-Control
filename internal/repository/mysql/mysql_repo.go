@@ -31,6 +31,7 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 		VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	// Execute the query using ExecContext
+
 	_, err := r.DB.ExecContext(ctx, query,
 		student.IdCard,     // ?1
 		student.FirstName,  // ?2
@@ -49,4 +50,23 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 	// Since we inserted all necessary data and don't need to fetch a new ID,
 	// we just return the successfully inserted student object.
 	return student, nil
+}
+
+func (r *MySqlRepository) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
+
+	query := `INSERT INTO cafeterias (id, name) VALUES (?,?)`
+
+	_, err := r.DB.Exec(query,
+		cafeteria.Id,   //?1
+		cafeteria.Name, //?2
+
+	)
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	return cafeteria, nil
+
 }
