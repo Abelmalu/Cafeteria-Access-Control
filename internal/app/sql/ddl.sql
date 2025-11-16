@@ -33,8 +33,8 @@ FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
 CREATE TABLE IF NOT EXISTS meals(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
     `name` VARCHAR(100) NOT NULL,
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL
 );
 
 

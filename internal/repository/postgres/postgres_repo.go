@@ -34,3 +34,10 @@ func (r *PostgresRepository) CreateBatch(ctx context.Context, student *models.Ba
 
 	panic("unimplemented")
 }
+
+func (r *PostgresRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error){
+
+
+	panic("unimplemented")
+	
+}

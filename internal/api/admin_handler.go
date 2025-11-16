@@ -89,3 +89,32 @@ func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request){
 
 
 }
+
+
+func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request){
+	var meal models.Meal
+
+	decodingErr := json.NewDecoder(r.Body).Decode(&meal)
+	if decodingErr != nil{
+			errorString := decodingErr.Error()
+
+		http.Error(w,errorString,http.StatusBadRequest)
+	
+	}
+	_,err := h.service.CreateMeal(r.Context(),&meal)
+
+	if err != nil{
+
+		errorString := err.Error()
+
+		http.Error(w,errorString,http.StatusBadRequest)
+
+
+		
+	}
+
+
+
+
+
+}

@@ -132,6 +132,7 @@ func (a *App) setupRoutes() {
 	a.Router.Post("/api/admin/create/cafeteria", http.HandlerFunc(adminHandler.CreateCafeteria))
 	a.Router.Post("/api/admin/create/batch", http.HandlerFunc(adminHandler.CreateBatch))
 	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
+	a.Router.Post("/api/admin/create/meal", http.HandlerFunc(adminHandler.CreateMeal))
 }
 
 // Run starts the HTTP server on the configured port.
@@ -153,8 +154,10 @@ func NewRepositoryFactory(dbType string, db *sql.DB) (core.AccessRepository, err
 		return mysql.NewMySqlRepository(db), nil
 	case "postgres":
 		// Returns the concrete *postgres.PostgresRepository, which implements core.Repository
-		return postgres.NewPostgresRepository(db), nil
+		return postgres.NewPostgresRepository(db), nil   
 	// You can add 'inmemory' for testing or 'sqlite' here
+
+
 	default:
 		return nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
 	}

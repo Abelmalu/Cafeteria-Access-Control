@@ -53,8 +53,26 @@ func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Ca
 }
 
 // CreateMeal implements core.AdminService.
-func (s *AdminService) CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error) {
-	panic("unimplemented")
+func (s *AdminService) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error) {
+	if meal.Name == "" {
+
+
+		return nil,errors.New("meal Name is required")
+
+
+
+	}
+
+	_,err := s.repo.CreateMeal(ctx,meal)
+
+	if err != nil{
+
+
+		return nil,err
+	}
+
+	return meal,nil
+
 }
 
 // RegisterDevice implements core.AdminService.

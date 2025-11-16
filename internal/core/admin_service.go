@@ -21,7 +21,7 @@ type AdminService interface {
 	CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error)
 
 	// CreateMeal adds a new meal identity to the database.
-	CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error)
+	CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error)
 
 	// creates  cafeteria/dining hall record.
 	CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error)

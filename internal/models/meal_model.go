@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	//"fmt"
 	"time"
 )
 
@@ -17,26 +17,7 @@ type Meal struct {
 // check if current time is in the Meal's start/end window.
 
 func (m *Meal) IsIt(t time.Time) (bool, error) {
-	// Parse the time components from the database strings to Time type
-	// time.TimeOnly is formatted like "1:1:00"
-	start, err := time.Parse(time.TimeOnly, m.StartTime)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse start time %s: %w", m.StartTime, err)
-	}
+	
+	panic("unimplemented")
 
-	end, err := time.Parse(time.TimeOnly, m.EndTime)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse end time %s: %w", m.EndTime, err)
-	}
-
-	// Create a time object for comparison that only contains the time components
-	// The date part is arbitrary (e.g., year=0, month=1, day=1), but must be consistent.
-	tOnly := time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
-	start = time.Date(0, 1, 1, start.Hour(), start.Minute(), start.Second(), 0, time.UTC)
-	end = time.Date(0, 1, 1, end.Hour(), end.Minute(), end.Second(), 0, time.UTC)
-
-	// Check if the current time (tOnly) falls within the start and end window
-	isCurrent := !tOnly.Before(start) && tOnly.Before(end)
-
-	return isCurrent, nil
 }

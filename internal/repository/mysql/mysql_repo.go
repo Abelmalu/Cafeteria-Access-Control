@@ -87,3 +87,28 @@ func (r *MySqlRepository) CreateBatch(ctx context.Context, batch *models.Batch) 
 
 	return batch,nil
 }
+
+func (r *MySqlRepository)CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error){
+
+	query := `INSERT INTO meals (name,start_time,end_time)  VALUES (?,?,?)`
+
+	_,err := r.DB.Exec(query,
+		meal.Name,
+		meal.StartTime,
+		meal.EndTime,
+	
+
+	)
+
+	if err != nil{
+
+		fmt.Println("create meal repo")
+		return nil,err
+	}
+	fmt.Println("create meal repo not error")
+
+	return meal,nil
+
+
+
+}
