@@ -9,7 +9,7 @@ import (
 // AdminService defines the contract for administrative functions
 // such as creating user accounts, registering hardware, and setting policies.
 type AdminService interface {
-	// RegisterDevice creates a new physical scanner device record.
+	//RegisterDevice creates a new physical scanner device record.
 	// It is responsible for internal logic like generating a secure API key before saving.
 	// Returns the created Device model, which includes the generated API key.
 	RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)

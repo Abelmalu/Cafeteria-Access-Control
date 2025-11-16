@@ -30,7 +30,7 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 	// Execute the query using ExecContext
 
 	_, err := r.DB.ExecContext(ctx, query,
-		
+
 		student.FirstName,  // ?2
 		student.MiddleName, // ?3
 		student.LastName,   // ?4
@@ -81,34 +81,47 @@ func (r *MySqlRepository) CreateBatch(ctx context.Context, batch *models.Batch) 
 
 	if err != nil {
 
-
-		return nil,err
+		return nil, err
 	}
 
-	return batch,nil
+	return batch, nil
 }
 
-func (r *MySqlRepository)CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error){
+func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error) {
 
 	query := `INSERT INTO meals (name,start_time,end_time)  VALUES (?,?,?)`
 
-	_,err := r.DB.Exec(query,
+	_, err := r.DB.Exec(query,
 		meal.Name,
 		meal.StartTime,
 		meal.EndTime,
-	
-
 	)
 
-	if err != nil{
+	if err != nil {
 
 		fmt.Println("create meal repo")
-		return nil,err
+		return nil, err
 	}
 	fmt.Println("create meal repo not error")
 
-	return meal,nil
+	return meal, nil
+
+}
+func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error){
+
+	query := `INSERT INTO devices(name,serial_number,cafeteria_id) VALUES (?,?,?)`
 
 
+	_,err := r.DB.Exec(query,
+	 device.Name,
+	 device.SerialNumber,
+	 device.Cafeteria_id,
+	
+	)
+	if err != nil{
 
+		return nil,err
+	}
+
+	return device,nil
 }

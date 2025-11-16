@@ -77,7 +77,20 @@ func (s *AdminService) CreateMeal(ctx context.Context, meal *models.Meal) (*mode
 
 // RegisterDevice implements core.AdminService.
 func (s *AdminService) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
-	panic("unimplemented")
+	if device.Name == "" || device.SerialNumber == "" || device.Cafeteria_id <=0{
+
+		return nil,errors.New("device name,serialnumber,cafeteria id can not be nul and less than zero")
+	}
+
+	deviceReturned, err := s.repo.RegisterDevice(ctx,device)
+
+	if err != nil {
+
+		return nil,err
+	}
+
+	return deviceReturned,nil
+
 }
 
 func (s *AdminService) CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error) {

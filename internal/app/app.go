@@ -133,6 +133,7 @@ func (a *App) setupRoutes() {
 	a.Router.Post("/api/admin/create/batch", http.HandlerFunc(adminHandler.CreateBatch))
 	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
 	a.Router.Post("/api/admin/create/meal", http.HandlerFunc(adminHandler.CreateMeal))
+	a.Router.Post("/api/admin/register/device", http.HandlerFunc(adminHandler.RegisterDevice))
 }
 
 // Run starts the HTTP server on the configured port.

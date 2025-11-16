@@ -52,7 +52,7 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		errorString := err.Error()
-		
+
 		http.Error(w, errorString, http.StatusInternalServerError)
 		return
 	}
@@ -63,57 +63,83 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request){
-     var batch models.Batch
+func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request) {
+	var batch models.Batch
 	// decode the request body
 	err := json.NewDecoder(r.Body).Decode(&batch)
-	if err != nil{
+	if err != nil {
 
-		http.Error(w,"Bad Request",http.StatusBadRequest)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 
-		return 
+		return
 	}
-	created,serviceErr := h.service.CreateBatch(r.Context(),&batch)
+	created, serviceErr := h.service.CreateBatch(r.Context(), &batch)
 	if serviceErr != nil {
 
 		errorString := serviceErr.Error()
 
-		http.Error(w,errorString,http.StatusBadRequest)
+		http.Error(w, errorString, http.StatusBadRequest)
 
+		return
 
 	}
-	
+
 	w.Write([]byte("successfully created a batch"))
 	json.NewEncoder(w).Encode(created)
 
+}
+
+func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
+	var meal models.Meal
+
+	decodingErr := json.NewDecoder(r.Body).Decode(&meal)
+	if decodingErr != nil {
+		errorString := decodingErr.Error()
+
+		http.Error(w, errorString, http.StatusBadRequest)
+		return
+
+	}
+	_, err := h.service.CreateMeal(r.Context(), &meal)
+
+	if err != nil {
+
+		errorString := err.Error()
+
+		http.Error(w, errorString, http.StatusBadRequest)
+		return
+
+	}
+	json.NewEncoder(w).Encode([]byte("Successfully created a meal"))
 
 
 }
 
+func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request){
 
-func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request){
-	var meal models.Meal
+	var device models.Device
 
-	decodingErr := json.NewDecoder(r.Body).Decode(&meal)
-	if decodingErr != nil{
-			errorString := decodingErr.Error()
+	decodingErr := json.NewDecoder(r.Body).Decode(&device)
 
-		http.Error(w,errorString,http.StatusBadRequest)
-	
+
+	if decodingErr != nil {
+		errorString := decodingErr.Error()
+		http.Error(w, errorString, http.StatusBadRequest)
+		return
+		
+
 	}
-	_,err := h.service.CreateMeal(r.Context(),&meal)
+	_,err := h.service.RegisterDevice(r.Context(),&device)
 
 	if err != nil{
 
-		errorString := err.Error()
+		errString := err.Error()
 
-		http.Error(w,errorString,http.StatusBadRequest)
-
-
+		http.Error(w,errString,http.StatusBadRequest)
+		return
 		
 	}
-
-
+	w.Write([]byte("successfully Registered a device"))
 
 
 

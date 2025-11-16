@@ -41,3 +41,8 @@ func (r *PostgresRepository) CreateMeal(ctx context.Context, meal *models.Meal) 
 	panic("unimplemented")
 	
 }
+
+func (r *PostgresRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error){
+
+	panic("unimplemented")
+}
