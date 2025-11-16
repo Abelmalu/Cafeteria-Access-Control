@@ -107,21 +107,43 @@ func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*m
 	return meal, nil
 
 }
-func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error){
+func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
 
 	query := `INSERT INTO devices(name,serial_number,cafeteria_id) VALUES (?,?,?)`
 
-
-	_,err := r.DB.Exec(query,
-	 device.Name,
-	 device.SerialNumber,
-	 device.Cafeteria_id,
-	
+	_, err := r.DB.Exec(query,
+		device.Name,
+		device.SerialNumber,
+		device.Cafeteria_id,
 	)
-	if err != nil{
+	if err != nil {
 
-		return nil,err
+		return nil, err
 	}
 
-	return device,nil
+	return device, nil
+}
+
+func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
+	var student models.Student
+	query := `SELECT * FROM students WHERE rfid_tag =?`
+
+	row := r.DB.QueryRow(query,
+		rfidTag,
+	)
+	err := row.Scan(
+		&student.IdCard, 
+		&student.FirstName, 
+		&student.MiddleName,
+		&student.LastName,
+		&student.BatchId,
+		&student.RFIDTag,
+		&student.ImageURL)
+	if err != nil {
+
+		return nil, err
+	}
+
+	return &student, nil
+
 }

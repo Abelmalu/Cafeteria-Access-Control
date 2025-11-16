@@ -11,11 +11,11 @@ import (
 )
 
 type AdminService struct {
-	repo core.AccessRepository
+	repo core.AdminRepository
 }
 
 // NewAdminService creates a new instance of AdminService.
-func NewAdminService(repo core.AccessRepository) *AdminService {
+func NewAdminService(repo core.AdminRepository) *AdminService {
 	return &AdminService{repo: repo}
 }
 

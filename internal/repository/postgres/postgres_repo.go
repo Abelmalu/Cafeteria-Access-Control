@@ -46,3 +46,11 @@ func (r *PostgresRepository) RegisterDevice(ctx context.Context, device *models.
 
 	panic("unimplemented")
 }
+
+
+
+
+func (r *PostgresRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
+	
+	panic("unimplemented")
+}

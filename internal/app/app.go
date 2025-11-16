@@ -116,14 +116,14 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 // setupRoutes initializes all concrete implementations and wires them together.
 func (a *App) setupRoutes() {
 
-	repo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
+	Adminrepo,MealAccessRepo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
 	if err != nil {
 		log.Fatalf("FATAL: Failed to initialize repository for type %s: %v", a.Config.DBType, err)
 	}
 	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
 
 	// Service initialization creates the 'adminSvc' variable
-	adminSvc := service.NewAdminService(repo)
+	adminSvc := service.NewAdminService(Adminrepo)
 
 	// ✅ FIX 1: Pass the initialized service variable (adminSvc) into the handler constructor
 	adminHandler := api.NewAdminHandler(adminSvc)
@@ -134,7 +134,16 @@ func (a *App) setupRoutes() {
 	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
 	a.Router.Post("/api/admin/create/meal", http.HandlerFunc(adminHandler.CreateMeal))
 	a.Router.Post("/api/admin/register/device", http.HandlerFunc(adminHandler.RegisterDevice))
-}
+	// admin routes ends here 
+
+	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
+	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
+
+	//meal Access routes starts here
+	a.Router.Get("/api/student", http.HandlerFunc(mealAccessHandler.GetStudentByRfidTag))
+
+
+}   
 
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
@@ -148,19 +157,19 @@ func (a *App) Run() {
 }
 
 // instantiates the correct concrete implementation based on the dbType string.
-func NewRepositoryFactory(dbType string, db *sql.DB) (core.AccessRepository, error) {
+func NewRepositoryFactory(dbType string, db *sql.DB) (core.AdminRepository,core.MealAccessServiceRepository, error) {
 	switch dbType {
 	case "mysql":
 		// Returns the concrete *mysql.MySqlRepository, which implements core.Repository
-		return mysql.NewMySqlRepository(db), nil
+		return mysql.NewMySqlRepository(db), mysql.NewMySqlRepository(db), nil
 	case "postgres":
 		// Returns the concrete *postgres.PostgresRepository, which implements core.Repository
-		return postgres.NewPostgresRepository(db), nil   
+		return postgres.NewPostgresRepository(db),postgres.NewPostgresRepository(db), nil   
 	// You can add 'inmemory' for testing or 'sqlite' here
 
 
 	default:
-		return nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
+		return nil,nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
 	}
 }
 
