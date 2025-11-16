@@ -15,7 +15,7 @@ type AdminService interface {
 	RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)
 
 	// CreateBatch adds a new batch identity to the database.
-	CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error)
+	CreateBatch(ctx context.Context, batch *models.Batch) (*models.Batch, error)
 
 	// CreateStudent adds a new student identity to the database.
 	CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error)

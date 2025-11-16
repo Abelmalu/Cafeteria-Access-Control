@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
-	"net/http"
 )
 
 type AdminHandler struct {
@@ -28,7 +28,8 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	created, err := h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
-		http.Error(w, "failed to create student", http.StatusInternalServerError)
+		errString := err.Error()
+		http.Error(w, errString, http.StatusInternalServerError)
 		return
 	}
 
@@ -50,12 +51,41 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 	created, err := h.service.CreateCafeteria(r.Context(), &cafeteria)
 
 	if err != nil {
-		http.Error(w, "failed to create cafeteria", http.StatusInternalServerError)
+		errorString := err.Error()
+		
+		http.Error(w, errorString, http.StatusInternalServerError)
 		return
 	}
 	message := "Cafeteria successfully created"
 
 	json.NewEncoder(w).Encode(created)
 	json.NewEncoder(w).Encode(message)
+
+}
+
+func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request){
+     var batch models.Batch
+	// decode the request body
+	err := json.NewDecoder(r.Body).Decode(&batch)
+	if err != nil{
+
+		http.Error(w,"Bad Request",http.StatusBadRequest)
+
+		return 
+	}
+	created,serviceErr := h.service.CreateBatch(r.Context(),&batch)
+	if serviceErr != nil {
+
+		errorString := serviceErr.Error()
+
+		http.Error(w,errorString,http.StatusBadRequest)
+
+
+	}
+	
+	w.Write([]byte("successfully created a batch"))
+	json.NewEncoder(w).Encode(created)
+
+
 
 }

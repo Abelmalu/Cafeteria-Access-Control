@@ -4,7 +4,7 @@
 -- Table for different cafeterias
 CREATE TABLE IF NOT EXISTS cafeterias (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  -- Unique ID for the location
-careteria_name VARCHAR(100) NOT NULL,
+`name` VARCHAR(100) NOT NULL,
 careteria_location VARCHAR(100) NOT NULL
 );
 
@@ -13,7 +13,7 @@ careteria_location VARCHAR(100) NOT NULL
 -- Table for batches in university 
 CREATE TABLE IF NOT EXISTS batches(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  -- Cleaned up line break
-    batches_name VARCHAR(100) NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
     cafeteria_id INT NOT NULL,
     FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
 );

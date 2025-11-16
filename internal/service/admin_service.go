@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	//"time"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
@@ -19,18 +20,34 @@ func NewAdminService(repo core.AccessRepository) *AdminService {
 }
 
 // CreateBatch implements core.AdminService.
-func (s *AdminService) CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error) {
-	panic("unimplemented")
+func (s *AdminService) CreateBatch(ctx context.Context, batch *models.Batch) (*models.Batch, error) {
+	if batch.Cafeteria_id == 0 || batch.Name == "" {
+
+		return nil, errors.New("cafeteria_id and/or batch name are required ")
+	}
+
+	_, err := s.repo.CreateBatch(ctx, batch)
+	if err != nil {
+
+		return nil, err
+	}
+
+	return batch, nil
+
 }
 
 // CreateCafeteria implements core.AdminService.
 func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
-	if cafeteria.Id == 0 || cafeteria.Name == "" {
+	if cafeteria.Name == "" || cafeteria.Location == "" {
 
 		return nil, errors.New("Cafeteria id and/or Cafeteria name are required")
 
 	}
-	s.repo.CreateCafeteria(ctx, cafeteria)
+	_, err := s.repo.CreateCafeteria(ctx, cafeteria)
+	if err != nil {
+
+		return nil, err
+	}
 
 	return cafeteria, nil
 }
@@ -47,7 +64,7 @@ func (s *AdminService) RegisterDevice(ctx context.Context, device *models.Device
 
 func (s *AdminService) CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error) {
 	// --- Service Layer Validation ---
-	if student.IdCard == "" || student.BatchId == "" || student.RFIDTag == "" {
+	if student.FirstName == "" || student.MiddleName == "" || student.LastName == "" || student.BatchId == 0 || student.RFIDTag == "" {
 		return nil, errors.New("admin: student ID, batch ID, and RFID tag are required")
 	}
 

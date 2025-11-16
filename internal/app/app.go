@@ -128,9 +128,10 @@ func (a *App) setupRoutes() {
 	// ✅ FIX 1: Pass the initialized service variable (adminSvc) into the handler constructor
 	adminHandler := api.NewAdminHandler(adminSvc)
 
-	// ✅ FIX 2: Call the method on the initialized handler variable (adminHandler)
-	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
+	// admin routes 
 	a.Router.Post("/api/admin/create/cafeteria", http.HandlerFunc(adminHandler.CreateCafeteria))
+	a.Router.Post("/api/admin/create/batch", http.HandlerFunc(adminHandler.CreateBatch))
+	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
 }
 
 // Run starts the HTTP server on the configured port.
@@ -181,18 +182,4 @@ func runMigrations(db *sql.DB) error {
 
 	return nil
 }
-// // readSQLFile is a simple utility to read the entire file content into a string.
-// func readSQLFile(filepath string) (string, error) {
-// 	file, err := os.Open(filepath)
-// 	if err != nil {
-// 		return "", fmt.Errorf("could not open file: %w", err)
-// 	}
-// 	defer file.Close()
 
-// 	content, err := io.ReadAll(file)
-// 	if err != nil {
-// 		return "", fmt.Errorf("could not read file content: %w", err)
-// 	}
-
-// 	return string(content), nil
-// }

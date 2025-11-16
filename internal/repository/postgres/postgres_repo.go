@@ -28,3 +28,9 @@ func (r *PostgresRepository) CreateCafeteria(ctx context.Context, cafeteria *mod
 
 	panic("unimplemented")
 }
+
+
+func (r *PostgresRepository) CreateBatch(ctx context.Context, student *models.Batch) (*models.Batch, error){
+
+	panic("unimplemented")
+}

@@ -9,7 +9,7 @@ import (
 type AccessRepository interface {
 	// GetStudentByRfidTag(tag string) (*models.Student, error)
 	CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error)
-	// CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error)
+	CreateBatch(ctx context.Context, student *models.Batch) (*models.Batch, error)
 	// RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)
 	// CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error)
 	CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error)

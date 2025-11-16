@@ -17,23 +17,20 @@ func NewMySqlRepository(db *sql.DB) *MySqlRepository {
 	return &MySqlRepository{DB: db}
 }
 
-// This method implements the core.AccessRepository contract.
-// that represents your database connection (*sql.DB or similar).
-
 func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error) {
 	// 1. Removed RETURNING clause.
 	// 2. Used MySQL-compatible '?' placeholders.
 	// 3. Mapped all 7 fields correctly (removed the double 'rfid_tag').
 	query := `
 		INSERT INTO students (
-			id_card, first_name, middle_name, last_name, batch_id, rfid_tag, image_url
+			 first_name, middle_name, last_name, batch_id, rfid_tag, image_url
 		) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)`
+		VALUES ( ?, ?, ?, ?, ?, ?)`
 
 	// Execute the query using ExecContext
 
 	_, err := r.DB.ExecContext(ctx, query,
-		student.IdCard,     // ?1
+		
 		student.FirstName,  // ?2
 		student.MiddleName, // ?3
 		student.LastName,   // ?4
@@ -54,11 +51,12 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 
 func (r *MySqlRepository) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
 
-	query := `INSERT INTO cafeterias (id, name) VALUES (?,?)`
+	query := `INSERT INTO cafeterias (id, name,careteria_location) VALUES (?,?,?)`
 
 	_, err := r.DB.Exec(query,
-		cafeteria.Id,   //?1
-		cafeteria.Name, //?2
+		cafeteria.Id,       //?1
+		cafeteria.Name,     //?2
+		cafeteria.Location, //?3
 
 	)
 
@@ -69,4 +67,23 @@ func (r *MySqlRepository) CreateCafeteria(ctx context.Context, cafeteria *models
 
 	return cafeteria, nil
 
+}
+
+func (r *MySqlRepository) CreateBatch(ctx context.Context, batch *models.Batch) (*models.Batch, error) {
+
+	query := `INSERT INTO batches (name,cafeteria_id)  VALUES (?,?) `
+
+	_, err := r.DB.Exec(query,
+
+		batch.Name,
+		batch.Cafeteria_id,
+	)
+
+	if err != nil {
+
+
+		return nil,err
+	}
+
+	return batch,nil
 }
