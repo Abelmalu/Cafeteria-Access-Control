@@ -1,7 +1,7 @@
 package models
 
 type Student struct {
-	IdCard     string `json:"id_card" db:"id"`
+	IdCard     int `json:"id_card" db:"id"`
 	FirstName  string `json:"first_name" db:"first_name"`
 	MiddleName string `json:"middle_name" db:"middle_name"`
 	LastName   string `json:"last_name" db:"last_name"`

@@ -122,6 +122,13 @@ func (a *App) setupRoutes() {
 	}
 	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
 
+
+
+	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
+	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
+
+	//meal Access routes starts here
+	a.Router.Get("/api/student/{sutdentRfid}", http.HandlerFunc(mealAccessHandler.GetStudentByRfidTag))
 	// Service initialization creates the 'adminSvc' variable
 	adminSvc := service.NewAdminService(Adminrepo)
 
@@ -136,11 +143,7 @@ func (a *App) setupRoutes() {
 	a.Router.Post("/api/admin/register/device", http.HandlerFunc(adminHandler.RegisterDevice))
 	// admin routes ends here 
 
-	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
-	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
 
-	//meal Access routes starts here
-	a.Router.Get("/api/student", http.HandlerFunc(mealAccessHandler.GetStudentByRfidTag))
 
 
 }   

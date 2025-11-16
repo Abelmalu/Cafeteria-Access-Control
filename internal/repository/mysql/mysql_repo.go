@@ -136,9 +136,10 @@ func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, 
 		&student.FirstName, 
 		&student.MiddleName,
 		&student.LastName,
-		&student.BatchId,
 		&student.RFIDTag,
-		&student.ImageURL)
+		&student.ImageURL,
+		&student.BatchId,
+		)
 	if err != nil {
 
 		return nil, err

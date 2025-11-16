@@ -22,7 +22,7 @@ func NewMealAccessService(repo core.MealAccessServiceRepository)(*MealAccessServ
 
 func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
 	
-	if rfidTag != "" {
+	if rfidTag == "" {
 
 		return nil, errors.New("RFIDTag value empty")
 
