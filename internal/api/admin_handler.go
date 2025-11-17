@@ -2,7 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 )
@@ -112,35 +114,32 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode([]byte("Successfully created a meal"))
 
-
 }
 
-func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request){
+func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 
 	var device models.Device
 
-	decodingErr := json.NewDecoder(r.Body).Decode(&device)
+	log.Fatal("request reached here ")
 
+	decodingErr := json.NewDecoder(r.Body).Decode(&device)
 
 	if decodingErr != nil {
 		errorString := decodingErr.Error()
 		http.Error(w, errorString, http.StatusBadRequest)
 		return
-		
 
 	}
-	_,err := h.service.RegisterDevice(r.Context(),&device)
+	_, err := h.service.RegisterDevice(r.Context(), &device)
 
-	if err != nil{
+	if err != nil {
 
 		errString := err.Error()
 
-		http.Error(w,errString,http.StatusBadRequest)
+		http.Error(w, errString, http.StatusBadRequest)
 		return
-		
+
 	}
 	w.Write([]byte("successfully Registered a device"))
-
-
 
 }

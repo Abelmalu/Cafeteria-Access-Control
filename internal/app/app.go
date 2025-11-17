@@ -10,6 +10,7 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
 
+	_ "embed"
 	"github.com/go-chi/chi/v5"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
@@ -17,10 +18,9 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	_"embed"
 )
 
-//go:embed sql/ddl.sql 
+//go:embed sql/ddl.sql
 var ddlFile string
 
 // App holds the application dependencies and router.
@@ -46,7 +46,7 @@ func NewApp() (*App, error) {
 
 	migrationsError := runMigrations(currentDBConnection)
 
-	if migrationsError != nil{
+	if migrationsError != nil {
 
 		log.Fatal(migrationsError)
 	}
@@ -82,7 +82,7 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 			DBName:               cfg.DBName,
 			AllowNativePasswords: true,
 			ParseTime:            true,
-			MultiStatements: true,
+			MultiStatements:      true,
 		}
 		connStr = mysqlCfg.FormatDSN()
 	case "postgres":
@@ -116,13 +116,11 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 // setupRoutes initializes all concrete implementations and wires them together.
 func (a *App) setupRoutes() {
 
-	Adminrepo,MealAccessRepo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
+	Adminrepo, MealAccessRepo, err := NewRepositoryFactory(a.Config.DBType, a.DB)
 	if err != nil {
 		log.Fatalf("FATAL: Failed to initialize repository for type %s: %v", a.Config.DBType, err)
 	}
 	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
-
-
 
 	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
 	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
@@ -135,18 +133,15 @@ func (a *App) setupRoutes() {
 	// ✅ FIX 1: Pass the initialized service variable (adminSvc) into the handler constructor
 	adminHandler := api.NewAdminHandler(adminSvc)
 
-	// admin routes 
+	// admin routes
 	a.Router.Post("/api/admin/create/cafeteria", http.HandlerFunc(adminHandler.CreateCafeteria))
 	a.Router.Post("/api/admin/create/batch", http.HandlerFunc(adminHandler.CreateBatch))
 	a.Router.Post("/api/admin/create/student", http.HandlerFunc(adminHandler.CreateStudent))
 	a.Router.Post("/api/admin/create/meal", http.HandlerFunc(adminHandler.CreateMeal))
 	a.Router.Post("/api/admin/register/device", http.HandlerFunc(adminHandler.RegisterDevice))
-	// admin routes ends here 
+	// admin routes ends here
 
-
-
-
-}   
+}
 
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
@@ -160,19 +155,18 @@ func (a *App) Run() {
 }
 
 // instantiates the correct concrete implementation based on the dbType string.
-func NewRepositoryFactory(dbType string, db *sql.DB) (core.AdminRepository,core.MealAccessServiceRepository, error) {
+func NewRepositoryFactory(dbType string, db *sql.DB) (core.AdminRepository, core.MealAccessServiceRepository, error) {
 	switch dbType {
 	case "mysql":
 		// Returns the concrete *mysql.MySqlRepository, which implements core.Repository
 		return mysql.NewMySqlRepository(db), mysql.NewMySqlRepository(db), nil
 	case "postgres":
 		// Returns the concrete *postgres.PostgresRepository, which implements core.Repository
-		return postgres.NewPostgresRepository(db),postgres.NewPostgresRepository(db), nil   
+		return postgres.NewPostgresRepository(db), postgres.NewPostgresRepository(db), nil
 	// You can add 'inmemory' for testing or 'sqlite' here
 
-
 	default:
-		return nil,nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
+		return nil, nil, fmt.Errorf("unsupported database repository type specified: %s", dbType)
 	}
 }
 
@@ -190,7 +184,7 @@ func runMigrations(db *sql.DB) error {
 
 	// Execute the entire content of the SQL file as a single block.
 	// We execute the string content directly, avoiding os.Open.
-	_, err := db.Exec(ddlFile) 
+	_, err := db.Exec(ddlFile)
 	if err != nil {
 		// Log the error returned by the database driver
 		return fmt.Errorf("failed to execute DDL: %w", err)
@@ -198,4 +192,3 @@ func runMigrations(db *sql.DB) error {
 
 	return nil
 }
-

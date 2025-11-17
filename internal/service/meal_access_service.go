@@ -11,36 +11,31 @@ type MealAccessService struct {
 	repo core.MealAccessServiceRepository
 }
 
+func NewMealAccessService(repo core.MealAccessServiceRepository) *MealAccessService {
 
+	return &MealAccessService{repo: repo}
 
-func NewMealAccessService(repo core.MealAccessServiceRepository)(*MealAccessService){
-
-	return &MealAccessService{repo:repo}
-
-	
 }
 
 func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
-	
+
 	if rfidTag == "" {
 
 		return nil, errors.New("RFIDTag value empty")
 
-
 	}
-	student,err := ms.repo.GetStudentByRfidTag(rfidTag)
+	student, err := ms.repo.GetStudentByRfidTag(rfidTag)
 
-	if err != nil{
+	if err != nil {
 
-		return nil,err
+		return nil, err
 	}
 
-	return  student,nil
+	return student, nil
 
 }
 
-
-//this method checks if the student can eat in the cafeteria 
+// this method checks if the student can eat in the cafeteria
 func CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error) {
 	panic("unimplemented")
 }
@@ -50,12 +45,12 @@ func CheckMealTime(currentTime string) (*models.Meal, error) {
 	panic("unimplemented")
 }
 
-// Grants or denies access to cafeteria for given student 
+// Grants or denies access to cafeteria for given student
 func GrantOrDenyAccess(currentDate string, student *models.Student, mealId string, deviceId int) (bool, error) {
 	panic("unimplemented")
 }
 
-//gets accesss logs 
+// gets accesss logs
 func GetAccessLog(date string) (*models.MealAccessLog, error) {
 	panic("unimplemented")
 }
