@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -17,21 +18,40 @@ func NewMealAccessService(repo core.MealAccessServiceRepository) *MealAccessServ
 
 }
 
-func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
+func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string,cafeteriaId string) (*models.Student, error) {
 
 	if rfidTag == "" {
 
-		return nil, errors.New("RFIDTag value empty")
+		return nil,errors.New("RFIDTag value empty")
 
 	}
-	student, err := ms.repo.GetStudentByRfidTag(rfidTag)
+	if cafeteriaId == "" {
+
+		return nil,errors.New("cafeteria id of the device is empty")
+
+	}
+	student,batch, err := ms.repo.GetStudentByRfidTag(rfidTag)
+
+	
 
 	if err != nil {
 
 		return nil, err
 	}
 
-	return student, nil
+	cafeteriaIdInteger,_:= strconv.Atoi(cafeteriaId)
+
+	if  cafeteriaIdInteger== batch.Cafeteria_id {
+
+		return student, nil
+	}else{
+
+		return student,errors.New("Access Denied: Wrong Cafeteria.")
+	}
+
+	
+
+	
 
 }
 

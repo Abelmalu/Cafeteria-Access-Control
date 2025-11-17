@@ -24,14 +24,15 @@ func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler{
 
 func (mh *MealAccessHandler) GetStudentByRfidTag(w http.ResponseWriter, r *http.Request){
 
-	studentRfid :=chi.URLParam(r, "sutdentRfid")
+	studentRfId :=chi.URLParam(r, "sutdentRfid")
+	cafeteriaId := chi.URLParam(r,"cafeteriaId")
 
-	fmt.Printf("Received request for RFID Tag %s\n",studentRfid)
-	if studentRfid == ""{
+	fmt.Printf("Received request for RFID Tag %s\n",studentRfId)
+	if studentRfId == ""{
 		http.Error(w,"invalid rfid tag",http.StatusBadRequest)
 		return
 	}
-	student,err := mh.service.GetStudentByRfidTag(studentRfid)
+	student,err := mh.service.GetStudentByRfidTag(studentRfId,cafeteriaId)
 
 	if err != nil{
 

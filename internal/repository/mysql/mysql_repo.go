@@ -124,14 +124,15 @@ func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Dev
 	return device, nil
 }
 
-func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
+func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student,*models.Batch, error) {
 	var student models.Student
+	var batch models.Batch
 	query := `SELECT * FROM students WHERE rfid_tag =?`
 
-	row := r.DB.QueryRow(query,
+	studentRow := r.DB.QueryRow(query,
 		rfidTag,
 	)
-	err := row.Scan(
+	err := studentRow.Scan(
 		&student.IdCard, 
 		&student.FirstName, 
 		&student.MiddleName,
@@ -140,11 +141,31 @@ func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, 
 		&student.ImageURL,
 		&student.BatchId,
 		)
+	
+
+	//querying the database to get the 
+	batchQuery := `SELECT * FROM batches WHERE id=?`
+
+	BatchRow := r.DB.QueryRow(
+		batchQuery,student.BatchId,
+	)
+	BatchRowError := BatchRow.Scan(
+		&batch.Id,
+		&batch.Name,
+		&batch.Cafeteria_id,
+
+	)
+
 	if err != nil {
 
-		return nil, err
+		return nil,&batch, err
 	}
 
-	return &student, nil
+	if BatchRowError != nil{
+
+		return &student,nil,BatchRowError
+	}
+
+	return &student,&batch, nil
 
 }
