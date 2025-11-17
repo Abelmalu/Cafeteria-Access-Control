@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/go-chi/chi/v5"
 )
@@ -22,9 +21,10 @@ func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler{
 
 
 
-func (mh *MealAccessHandler) GetStudentByRfidTag(w http.ResponseWriter, r *http.Request){
-
-	studentRfId :=chi.URLParam(r, "sutdentRfid")
+func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Request){
+	
+	
+	studentRfId := chi.URLParam(r, "sutdentRfid")
 	cafeteriaId := chi.URLParam(r,"cafeteriaId")
 
 	fmt.Printf("Received request for RFID Tag %s\n",studentRfId)
@@ -32,7 +32,7 @@ func (mh *MealAccessHandler) GetStudentByRfidTag(w http.ResponseWriter, r *http.
 		http.Error(w,"invalid rfid tag",http.StatusBadRequest)
 		return
 	}
-	student,err := mh.service.GetStudentByRfidTag(studentRfId,cafeteriaId)
+	student,err := mh.service.AttemptAccess(studentRfId,cafeteriaId)
 
 	if err != nil{
 

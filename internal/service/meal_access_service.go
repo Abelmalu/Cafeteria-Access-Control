@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
+	//"time"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -18,7 +20,7 @@ func NewMealAccessService(repo core.MealAccessServiceRepository) *MealAccessServ
 
 }
 
-func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string,cafeteriaId string) (*models.Student, error) {
+func (ms *MealAccessService) AttemptAccess(rfidTag string,cafeteriaId string) (*models.Student, error) {
 
 	if rfidTag == "" {
 
@@ -30,7 +32,7 @@ func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string,cafeteriaId stri
 		return nil,errors.New("cafeteria id of the device is empty")
 
 	}
-	student,batch, err := ms.repo.GetStudentByRfidTag(rfidTag)
+	student,batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	
 
@@ -39,15 +41,24 @@ func (ms *MealAccessService) GetStudentByRfidTag(rfidTag string,cafeteriaId stri
 		return nil, err
 	}
 
-	cafeteriaIdInteger,_:= strconv.Atoi(cafeteriaId)
 
-	if  cafeteriaIdInteger== batch.Cafeteria_id {
+	deviceCafeteriaId,_:= strconv.Atoi(cafeteriaId)
+
+	if  deviceCafeteriaId== batch.Cafeteria_id {
+		//currentTime := time.Now()
+		meals,mealsErr := ms.repo.GetMeals()
+		if mealsErr != nil{
+			return student,mealsErr
+		}
+		fmt.Println(meals)
+		
 
 		return student, nil
 	}else{
 
 		return student,errors.New("Access Denied: Wrong Cafeteria.")
 	}
+
 
 	
 
