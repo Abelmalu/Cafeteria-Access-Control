@@ -170,21 +170,21 @@ func (r *MySqlRepository) AttemptAccess(rfidTag string) (*models.Student, *model
 
 func (r *MySqlRepository) GetMeals() ([]models.Meal, error) {
 
-	var meals [] models.Meal
+	var meals []models.Meal
 
 	mealQuery := `SELECT * FROM meals`
 
-	mealRows,mealRowsErr := r.DB.Query(mealQuery)
-	if mealRowsErr != nil{
+	mealRows, mealRowsErr := r.DB.Query(mealQuery)
+	if mealRowsErr != nil {
 
-		return nil,mealRowsErr
+		return nil, mealRowsErr
 	}
 
 	for mealRows.Next() {
 		var m models.Meal
 		// 3. Scan each row into a Meal struct
-		if err := mealRows.Scan(&m.Id, &m.Name,&m.StartTime,&m.EndTime); err != nil {
-			
+		if err := mealRows.Scan(&m.Id, &m.Name, &m.StartTime, &m.EndTime); err != nil {
+
 			return nil, err
 		}
 		meals = append(meals, m)
@@ -193,8 +193,45 @@ func (r *MySqlRepository) GetMeals() ([]models.Meal, error) {
 		return nil, err
 	}
 
+	return meals, nil
 
+}
+
+func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int,cafeteriaId int) (string, error) {
+	var mealLog models.MealAccessLog
+
+	query := `SELECT * FROM meal_access_logs WHERE meal_id = ? AND student_id = ? AND scan_time = ?`
+
+	result := r.DB.QueryRow(query,
+		mealId,
+		studentId,
+		currentDate,
+	)
+	err := result.Scan(&mealLog.ID, &mealLog.ScanTime, &mealLog.Status, &mealLog.StudentID, &mealLog.CafeteriaID, &mealLog.MealID, &mealLog.DeviceID)
+
+	if err != nil {
+		insertQuery := `INSERT INTO meal_access_logs(scan_time,status,student_id,cafeteria_id,meal_id,device_id) VALUES(?,?,?,?,?,?)`
+		fmt.Println(studentId)
+		_, insertMealLogError := r.DB.Exec(insertQuery,
+			currentDate,
+			"Granted",
+			studentId,
+			cafeteriaId,
+			mealId,
+			1,
+		)
+		if insertMealLogError != nil {
+
+			return "couldn't save to meal logs", insertMealLogError
+
+		}
+		return "Access Granted", nil
+
+		
+
+	}
 	
-	return meals,nil
+
+	return "Access Denied! YOu Have Eaten", nil
 
 }

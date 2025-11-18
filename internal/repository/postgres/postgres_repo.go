@@ -53,6 +53,11 @@ func (r *PostgresRepository) GetMeals() ([]models.Meal, error) {
 	panic("unimplemented")
 }
 
+func (r *PostgresRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int,cafeteriaId int) (string, error){
+
+panic("unimplemented")
+}
+
 
 
 

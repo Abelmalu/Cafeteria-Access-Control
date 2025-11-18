@@ -44,14 +44,14 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 	if deviceCafeteriaId == batch.Cafeteria_id {
 
 		currentTime := time.Now()
-		currentTimeFormatted := currentTime.Format("15:04:00")
-		fmt.Println(currentTimeFormatted)
+	
 
 		meals, mealsErr := ms.repo.GetMeals()
 		if mealsErr != nil {
 			return student, mealsErr
 		}
 		var mealTime bool = false
+		var mealID int 
 		for _, value := range meals {
 
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
@@ -82,6 +82,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 				// 3. Found a match! Set true and BREAK the loop immediately.
 				mealTime = true
+				mealID = value.Id
 				break
 			}
 
@@ -90,6 +91,15 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 			return student, errors.New("Not Meal Time")
 		}
+		currentDate := currentTime.Format("2006-01-02")
+
+		grantReturn,grantError :=ms.repo.GrantOrDenyAccess(currentDate,student.IdCard,mealID,deviceCafeteriaId)
+
+		if grantError != nil{
+
+			return student,grantError
+		}
+		fmt.Println(grantReturn)
 
 		return student, nil
 	} else {
@@ -98,6 +108,14 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 	}
 
 }
+
+
+
+
+
+
+
+
 
 // this method checks if the student can eat in the cafeteria
 func CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error) {
@@ -118,3 +136,4 @@ func GrantOrDenyAccess(currentDate string, student *models.Student, mealId strin
 func GetAccessLog(date string) (*models.MealAccessLog, error) {
 	panic("unimplemented")
 }
+

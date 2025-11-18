@@ -5,6 +5,8 @@ import "github.com/abelmalu/CafeteriaAccessControl/internal/models"
 type MealAccessServiceRepository interface {
 	AttemptAccess(rfidTag string) (*models.Student, *models.Batch, error)
 	GetMeals() ([]models.Meal, error)
+	GrantOrDenyAccess(currentDate string, studentId int, mealId int,cafeteriaId int) (string, error)
+
 
 	// CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error)
 	// CheckMealTime(currentTime string) (*models.Meal, error)

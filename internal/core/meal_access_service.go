@@ -8,5 +8,4 @@ type MealAccessService interface {
 	// CheckMealTime(currentTime string) (*models.Meal, error)
 	// GrantOrDenyAccess(currentDate string, student *models.Student, mealId string, deviceId int) (bool, error)
 	// GetAccessLog(date string) (*models.MealAccessLog, error)
-	// AttemptAccess(rfidTag string)
 }
