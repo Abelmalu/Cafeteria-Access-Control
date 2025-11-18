@@ -77,13 +77,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				0,
 				currentTime.Location())
 
-			if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
-				mealTime = false
-
-			} else {
-
-				mealTime = true
-			}
 			if (currentTime.After(finalStartTime) || currentTime.Equal(finalStartTime)) &&
 				(currentTime.Before(finalEndTime) || currentTime.Equal(finalEndTime)) {
 
@@ -97,8 +90,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 			return student, errors.New("Not Meal Time")
 		}
-		fmt.Println(currentTime)
-		fmt.Println(meals)
 
 		return student, nil
 	} else {
