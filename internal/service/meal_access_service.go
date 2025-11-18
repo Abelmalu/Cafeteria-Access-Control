@@ -51,17 +51,41 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		if mealsErr != nil {
 			return student, mealsErr
 		}
+		var mealTime bool = true
 		for _, value := range meals {
 
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
+
+			finalStartTime := time.Date(
+				currentTime.Year(),
+				currentTime.Month(),
+				currentTime.Day(),
+				startTime.Hour(),
+				startTime.Minute(),
+				startTime.Second(),
+				0,
+				currentTime.Location())
+
 			endTime, _ := time.Parse("15:04:00", value.EndTime)
+			finalEndTime := time.Date(
+				currentTime.Year(),
+				currentTime.Month(),
+				currentTime.Day(),
+				endTime.Hour(),
+				endTime.Minute(),
+				endTime.Second(),
+				0,
+				currentTime.Location())
 
-			if currentTime.After(endTime) && currentTime.Before(startTime) {
-
-				return student, errors.New("Not Meal Time")
+			if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
+				mealTime = false
 
 			}
 
+		}
+		if !mealTime {
+
+			return student, errors.New("Not Meal Time")
 		}
 		fmt.Println(currentTime)
 		fmt.Println(meals)
