@@ -124,27 +124,77 @@ func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Dev
 	return device, nil
 }
 
-func (r *MySqlRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
+func (r *MySqlRepository) AttemptAccess(rfidTag string) (*models.Student, *models.Batch, error) {
 	var student models.Student
+	var batch models.Batch
 	query := `SELECT * FROM students WHERE rfid_tag =?`
 
-	row := r.DB.QueryRow(query,
+	studentRow := r.DB.QueryRow(query,
 		rfidTag,
 	)
-	err := row.Scan(
-		&student.IdCard, 
-		&student.FirstName, 
+	err := studentRow.Scan(
+		&student.IdCard,
+		&student.FirstName,
 		&student.MiddleName,
 		&student.LastName,
 		&student.RFIDTag,
 		&student.ImageURL,
 		&student.BatchId,
-		)
+	)
+
+	//querying the database to get the
+	batchQuery := `SELECT * FROM batches WHERE id=?`
+
+	BatchRow := r.DB.QueryRow(
+		batchQuery, student.BatchId,
+	)
+	BatchRowError := BatchRow.Scan(
+		&batch.Id,
+		&batch.Name,
+		&batch.Cafeteria_id,
+	)
+
 	if err != nil {
 
+		return nil, &batch, err
+	}
+
+	if BatchRowError != nil {
+
+		return &student, nil, BatchRowError
+	}
+
+	return &student, &batch, nil
+
+}
+
+func (r *MySqlRepository) GetMeals() ([]models.Meal, error) {
+
+	var meals [] models.Meal
+
+	mealQuery := `SELECT * FROM meals`
+
+	mealRows,mealRowsErr := r.DB.Query(mealQuery)
+	if mealRowsErr != nil{
+
+		return nil,mealRowsErr
+	}
+
+	for mealRows.Next() {
+		var m models.Meal
+		// 3. Scan each row into a Meal struct
+		if err := mealRows.Scan(&m.Id, &m.Name,&m.StartTime,&m.EndTime); err != nil {
+			
+			return nil, err
+		}
+		meals = append(meals, m)
+	}
+	if err := mealRows.Err(); err != nil {
 		return nil, err
 	}
 
-	return &student, nil
+
+	
+	return meals,nil
 
 }

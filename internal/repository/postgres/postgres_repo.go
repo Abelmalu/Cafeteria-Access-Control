@@ -48,9 +48,18 @@ func (r *PostgresRepository) RegisterDevice(ctx context.Context, device *models.
 }
 
 
+func (r *PostgresRepository) GetMeals() ([]models.Meal, error) {
 
-
-func (r *PostgresRepository) GetStudentByRfidTag(rfidTag string) (*models.Student, error) {
-	
 	panic("unimplemented")
 }
+
+
+
+
+
+
+func (r *PostgresRepository) AttemptAccess(rfidTag string) (*models.Student,*models.Batch, error) {
+	panic("unimplemented")
+
+}
+
