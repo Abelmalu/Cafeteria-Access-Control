@@ -77,9 +77,19 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				0,
 				currentTime.Location())
 
-			if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
-				mealTime = false
+			// if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
+			// 	mealTime = false
 
+			// } else {
+
+			// 	mealTime = true
+			// }
+			if (currentTime.After(finalStartTime) || currentTime.Equal(finalStartTime)) &&
+				(currentTime.Before(finalEndTime) || currentTime.Equal(finalEndTime)) {
+
+				// 3. Found a match! Set true and BREAK the loop immediately.
+				mealTime = true
+				break
 			}
 
 		}
