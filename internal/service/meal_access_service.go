@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	//"time"
+	"time"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -20,49 +20,57 @@ func NewMealAccessService(repo core.MealAccessServiceRepository) *MealAccessServ
 
 }
 
-func (ms *MealAccessService) AttemptAccess(rfidTag string,cafeteriaId string) (*models.Student, error) {
+func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (*models.Student, error) {
 
 	if rfidTag == "" {
 
-		return nil,errors.New("RFIDTag value empty")
+		return nil, errors.New("RFIDTag value empty")
 
 	}
 	if cafeteriaId == "" {
 
-		return nil,errors.New("cafeteria id of the device is empty")
+		return nil, errors.New("cafeteria id of the device is empty")
 
 	}
-	student,batch, err := ms.repo.AttemptAccess(rfidTag)
-
-	
+	student, batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	if err != nil {
 
 		return nil, err
 	}
 
+	deviceCafeteriaId, _ := strconv.Atoi(cafeteriaId)
 
-	deviceCafeteriaId,_:= strconv.Atoi(cafeteriaId)
+	if deviceCafeteriaId == batch.Cafeteria_id {
 
-	if  deviceCafeteriaId== batch.Cafeteria_id {
-		//currentTime := time.Now()
-		meals,mealsErr := ms.repo.GetMeals()
-		if mealsErr != nil{
-			return student,mealsErr
+		currentTime := time.Now()
+		currentTimeFormatted := currentTime.Format("15:04:00")
+		fmt.Println(currentTimeFormatted)
+
+		meals, mealsErr := ms.repo.GetMeals()
+		if mealsErr != nil {
+			return student, mealsErr
 		}
+		for _, value := range meals {
+
+			startTime, _ := time.Parse("15:04:00", value.StartTime)
+			endTime, _ := time.Parse("15:04:00", value.EndTime)
+
+			if currentTime.After(endTime) && currentTime.Before(startTime) {
+
+				return student, errors.New("Not Meal Time")
+
+			}
+
+		}
+		fmt.Println(currentTime)
 		fmt.Println(meals)
-		
 
 		return student, nil
-	}else{
+	} else {
 
-		return student,errors.New("Access Denied: Wrong Cafeteria.")
+		return student, errors.New("Access Denied: Wrong Cafeteria.")
 	}
-
-
-	
-
-	
 
 }
 

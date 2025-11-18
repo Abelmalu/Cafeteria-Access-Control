@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	//"time"
 
@@ -54,42 +55,54 @@ func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Ca
 
 // CreateMeal implements core.AdminService.
 func (s *AdminService) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error) {
-	if meal.Name == "" {
+	if meal.Name == "" || meal.StartTime == "" || meal.EndTime == "" {
 
-
-		return nil,errors.New("meal Name is required")
-
-
+		return nil, errors.New("meal Name/StartTime/EndTime is required")
 
 	}
 
-	_,err := s.repo.CreateMeal(ctx,meal)
+	// parsing and formatting for start time
+	startTime, startTimeParseErr := time.Parse("3:04 PM", meal.StartTime)
+	if startTimeParseErr != nil {
 
-	if err != nil{
+		return nil, errors.New("invalid start time")
+	}
+	meal.StartTime = startTime.Format("15:04:05")
 
+	// parsing and formatting for end time
+	endTime, endTimeParseErr := time.Parse("3:04 PM", meal.EndTime)
+	if endTimeParseErr != nil {
 
-		return nil,err
+		return nil, errors.New("invalid end time")
+	}
+	meal.EndTime = endTime.Format("15:04:05")
+
+	_, err := s.repo.CreateMeal(ctx, meal)
+
+	if err != nil {
+
+		return nil, err
 	}
 
-	return meal,nil
+	return meal, nil
 
 }
 
 // RegisterDevice implements core.AdminService.
 func (s *AdminService) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
-	if device.Name == "" || device.SerialNumber == "" || device.Cafeteria_id <=0{
+	if device.Name == "" || device.SerialNumber == "" || device.Cafeteria_id <= 0 {
 
-		return nil,errors.New("device name,serialnumber,cafeteria id can not be nul and less than zero")
+		return nil, errors.New("device name,serialnumber,cafeteria id can not be nul and less than zero")
 	}
 
-	deviceReturned, err := s.repo.RegisterDevice(ctx,device)
+	deviceReturned, err := s.repo.RegisterDevice(ctx, device)
 
 	if err != nil {
 
-		return nil,err
+		return nil, err
 	}
 
-	return deviceReturned,nil
+	return deviceReturned, nil
 
 }
 
