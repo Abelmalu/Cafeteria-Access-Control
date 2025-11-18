@@ -12,6 +12,8 @@ import (
 
 	_ "embed"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
 	"log"
@@ -56,7 +58,30 @@ func NewApp() (*App, error) {
 		fmt.Println(DBerr)
 	}
 
-	app := &App{Config: config, Router: chi.NewRouter(), DB: currentDBConnection}
+	router := chi.NewRouter()
+
+	// --- 2. CONFIGURE AND USE CORS MIDDLEWARE ---
+	router.Use(cors.Handler(cors.Options{
+		// AllowedOrigins: are the domains/IPs allowed to access your API.
+		// Use "*" during development to allow all, then change to specific frontend domains in production.
+		AllowedOrigins: []string{"*"},
+
+		// AllowedMethods: specify the HTTP methods that are permitted.
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+
+		// AllowedHeaders: allow the frontend to send critical headers like Content-Type.
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+
+		// Allow the browser to send cookies/auth headers if needed (for later).
+		AllowCredentials: true,
+
+		// MaxAge: how long the browser can cache the preflight response (in seconds).
+		MaxAge: 300,
+	}))
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+
+	app := &App{Config: config, Router: router, DB: currentDBConnection}
 
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()

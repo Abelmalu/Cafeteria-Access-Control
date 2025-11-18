@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"log"
+	//"log"
 	"net/http"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
@@ -120,7 +120,7 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 
 	var device models.Device
 
-	log.Fatal("request reached here ")
+	// log.Fatal("request reached here ")
 
 	decodingErr := json.NewDecoder(r.Body).Decode(&device)
 
