@@ -51,7 +51,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		if mealsErr != nil {
 			return student, mealsErr
 		}
-		var mealTime bool = true
+		var mealTime bool = false
 		for _, value := range meals {
 
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
@@ -77,13 +77,13 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				0,
 				currentTime.Location())
 
-			// if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
-			// 	mealTime = false
+			if currentTime.After(finalEndTime) || currentTime.Before(finalStartTime) {
+				mealTime = false
 
-			// } else {
+			} else {
 
-			// 	mealTime = true
-			// }
+				mealTime = true
+			}
 			if (currentTime.After(finalStartTime) || currentTime.Equal(finalStartTime)) &&
 				(currentTime.Before(finalEndTime) || currentTime.Equal(finalEndTime)) {
 
