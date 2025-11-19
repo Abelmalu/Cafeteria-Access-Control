@@ -44,14 +44,13 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 	if deviceCafeteriaId == batch.Cafeteria_id {
 
 		currentTime := time.Now()
-	
 
 		meals, mealsErr := ms.repo.GetMeals()
 		if mealsErr != nil {
 			return student, mealsErr
 		}
 		var mealTime bool = false
-		var mealID int 
+		var mealID int
 		for _, value := range meals {
 
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
@@ -93,29 +92,21 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		}
 		currentDate := currentTime.Format("2006-01-02")
 
-		grantReturn,grantError :=ms.repo.GrantOrDenyAccess(currentDate,student.IdCard,mealID,deviceCafeteriaId)
+		grantReturn, grantError := ms.repo.GrantOrDenyAccess(currentDate, student.IdCard, mealID, deviceCafeteriaId)
 
-		if grantError != nil{
+		if grantError != nil {
 
-			return student,grantError
+			return student, grantError
 		}
 		fmt.Println(grantReturn)
 
-		return student, nil
+		return nil, errors.New(grantReturn)
 	} else {
 
 		return student, errors.New("Access Denied: Wrong Cafeteria.")
 	}
 
 }
-
-
-
-
-
-
-
-
 
 // this method checks if the student can eat in the cafeteria
 func CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error) {
@@ -136,4 +127,3 @@ func GrantOrDenyAccess(currentDate string, student *models.Student, mealId strin
 func GetAccessLog(date string) (*models.MealAccessLog, error) {
 	panic("unimplemented")
 }
-

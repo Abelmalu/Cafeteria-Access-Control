@@ -197,7 +197,7 @@ func (r *MySqlRepository) GetMeals() ([]models.Meal, error) {
 
 }
 
-func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int,cafeteriaId int) (string, error) {
+func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int, cafeteriaId int) (string, error) {
 	var mealLog models.MealAccessLog
 
 	query := `SELECT * FROM meal_access_logs WHERE meal_id = ? AND student_id = ? AND scan_time = ?`
@@ -227,10 +227,23 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 		}
 		return "Access Granted", nil
 
-		
+	}
+
+	insertQuery := `INSERT INTO meal_access_logs(scan_time,status,student_id,cafeteria_id,meal_id,device_id) VALUES(?,?,?,?,?,?)`
+	fmt.Println(studentId)
+	_, insertMealLogError := r.DB.Exec(insertQuery,
+		currentDate,
+		"Denied",
+		studentId,
+		cafeteriaId,
+		mealId,
+		1,
+	)
+	if insertMealLogError != nil {
+
+		return "couldn't save to meal logs", insertMealLogError
 
 	}
-	
 
 	return "Access Denied! YOu Have Eaten", nil
 
