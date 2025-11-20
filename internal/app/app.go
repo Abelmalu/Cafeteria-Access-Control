@@ -152,6 +152,9 @@ func (a *App) setupRoutes() {
 
 	//meal Access routes starts here
 	a.Router.Get("/api/mealaccess/{sutdentRfid}/{cafeteriaId}", http.HandlerFunc(mealAccessHandler.AttemptAccess))
+	a.Router.Get("/api/cafeterias", http.HandlerFunc(mealAccessHandler.GetCafeterias))
+	//meal access routes ends here
+
 	// Service initialization creates the 'adminSvc' variable
 	adminSvc := service.NewAdminService(Adminrepo)
 

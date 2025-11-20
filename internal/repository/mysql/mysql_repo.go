@@ -248,3 +248,27 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 	return "Access Denied! YOu Have Eaten", nil
 
 }
+
+func (r *MySqlRepository) GetCafeterias() ([]models.Cafeteria, error) {
+	var cafeterias []models.Cafeteria
+
+	query := `SELECT * FROM cafeterias`
+
+	results, err := r.DB.Query(query)
+
+	if err != nil {
+
+		return nil, err
+	}
+	for results.Next() {
+		var cafeteria models.Cafeteria
+
+		results.Scan(&cafeteria.Id, &cafeteria.Name, &cafeteria.Location)
+
+		cafeterias = append(cafeterias, cafeteria)
+
+	}
+
+	return cafeterias, nil
+
+}

@@ -127,3 +127,15 @@ func GrantOrDenyAccess(currentDate string, student *models.Student, mealId strin
 func GetAccessLog(date string) (*models.MealAccessLog, error) {
 	panic("unimplemented")
 }
+
+func (ms *MealAccessService) GetCafeterias() ([]models.Cafeteria, error) {
+
+	cafeterias, err := ms.repo.GetCafeterias()
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	return cafeterias, nil
+}

@@ -3,51 +3,61 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/go-chi/chi/v5"
+	"net/http"
 )
 
 type MealAccessHandler struct {
 	service core.MealAccessService
 }
 
+func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler {
 
-func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler{
-
-
-	return  &MealAccessHandler{service: svc}
+	return &MealAccessHandler{service: svc}
 }
 
+func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Request) {
 
-
-func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Request){
-	
-	
 	studentRfId := chi.URLParam(r, "sutdentRfid")
-	cafeteriaId := chi.URLParam(r,"cafeteriaId")
+	cafeteriaId := chi.URLParam(r, "cafeteriaId")
 
-	fmt.Printf("Received request for RFID Tag %s\n",studentRfId)
-	if studentRfId == ""{
-		http.Error(w,"invalid rfid tag",http.StatusBadRequest)
+	fmt.Printf("Received request for RFID Tag %s\n", studentRfId)
+	if studentRfId == "" {
+		http.Error(w, "invalid rfid tag", http.StatusBadRequest)
 		return
 	}
-	student,err := mh.service.AttemptAccess(studentRfId,cafeteriaId)
+	student, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
 
-	if err != nil{
+	if err != nil {
 
 		errStr := err.Error()
 
-		http.Error(w,errStr,http.StatusBadRequest)
+		http.Error(w, errStr, http.StatusBadRequest)
 		return
-		
+
 	}
-	
+
 	json.NewEncoder(w).Encode(student)
 	w.Write([]byte("student fetched successfully"))
 
-	
+}
 
+func (mh *MealAccessHandler) GetCafeterias(w http.ResponseWriter, r *http.Request) {
 
+	cafeterias, err := mh.service.GetCafeterias()
+
+	if err != nil {
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"status":"error","message":"something went wrong"}`))
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	cafteriasJson, _ := json.Marshal(cafeterias)
+	w.Write(cafteriasJson)
 
 }

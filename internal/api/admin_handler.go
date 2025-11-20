@@ -13,30 +13,33 @@ type AdminHandler struct {
 	service core.AdminService
 }
 
+type StandardResponse struct {
+	Status  string `json:"status`
+	Message string `json:"message"`
+}
+
 func NewAdminHandler(service core.AdminService) *AdminHandler {
 	return &AdminHandler{service: service}
 }
 
-// CreateStudent handles the api/admin/create/student route
-func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
-	var student models.Student
+// --- 2. JSON Utility Function ---
 
-	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-
-		http.Error(w, "invalid input", http.StatusBadRequest)
-
-		return
-	}
-
-	created, err := h.service.CreateStudent(r.Context(), &student)
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, err := json.Marshal(payload)
 	if err != nil {
-		errString := err.Error()
-		http.Error(w, errString, http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"status": "error", "message": "Internal JSON encoding error"}`))
 		return
 	}
 
-	json.NewEncoder(w).Encode(created)
+	// MANDATORY: Set the header
+	w.Header().Set("Content-Type", "application/json")
 
+	// Set the status code
+	w.WriteHeader(code)
+
+	// Write the JSON body
+	w.Write(response)
 }
 
 // CreateCafeteria handles the api/admin/create/Cafeteria route
@@ -47,6 +50,11 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		http.Error(w, "Invalid data sent", http.StatusBadRequest)
+		w.Header().Set("Content-Type", ":application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json, _ := json.Marshal([]byte("Invalid data sent"))
+		w.Write(json)
+
 		return
 	}
 
@@ -134,12 +142,45 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		errString := err.Error()
+		errorResponse := StandardResponse{
 
-		http.Error(w, errString, http.StatusBadRequest)
+			Status:  "Error",
+			Message: "Invalid Cafeteria ID",
+		}
+
+		// http.Error(w, errString, http.StatusBadRequest)
+		respondWithJSON(w, http.StatusBadRequest, errorResponse)
 		return
 
 	}
-	w.Write([]byte("successfully Registered a device"))
+
+	successResponse := StandardResponse{
+		Status:  "success",
+		Message: "Device Registered Successfully",
+	}
+
+	respondWithJSON(w, http.StatusCreated, successResponse)
+
+}
+
+// CreateStudent handles the api/admin/create/student route
+func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
+	var student models.Student
+
+	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+
+		http.Error(w, "invalid input", http.StatusBadRequest)
+
+		return
+	}
+
+	created, err := h.service.CreateStudent(r.Context(), &student)
+	if err != nil {
+		errString := err.Error()
+		http.Error(w, errString, http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(created)
 
 }

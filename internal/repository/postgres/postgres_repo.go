@@ -29,42 +29,38 @@ func (r *PostgresRepository) CreateCafeteria(ctx context.Context, cafeteria *mod
 	panic("unimplemented")
 }
 
-
-func (r *PostgresRepository) CreateBatch(ctx context.Context, student *models.Batch) (*models.Batch, error){
-
-	panic("unimplemented")
-}
-
-func (r *PostgresRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error){
-
-
-	panic("unimplemented")
-	
-}
-
-func (r *PostgresRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error){
+func (r *PostgresRepository) CreateBatch(ctx context.Context, student *models.Batch) (*models.Batch, error) {
 
 	panic("unimplemented")
 }
 
+func (r *PostgresRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error) {
+
+	panic("unimplemented")
+
+}
+
+func (r *PostgresRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
+
+	panic("unimplemented")
+}
 
 func (r *PostgresRepository) GetMeals() ([]models.Meal, error) {
 
 	panic("unimplemented")
 }
 
-func (r *PostgresRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int,cafeteriaId int) (string, error){
+func (r *PostgresRepository) GrantOrDenyAccess(currentDate string, studentId int, mealId int, cafeteriaId int) (string, error) {
 
-panic("unimplemented")
+	panic("unimplemented")
 }
 
-
-
-
-
-
-func (r *PostgresRepository) AttemptAccess(rfidTag string) (*models.Student,*models.Batch, error) {
+func (r *PostgresRepository) AttemptAccess(rfidTag string) (*models.Student, *models.Batch, error) {
 	panic("unimplemented")
 
 }
 
+func (r *PostgresRepository) GetCafeterias() ([]models.Cafeteria, error) {
+
+	panic("")
+}
