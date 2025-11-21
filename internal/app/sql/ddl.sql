@@ -22,9 +22,8 @@ CREATE TABLE IF NOT EXISTS batches(
 CREATE TABLE IF NOT EXISTS devices(
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
 `name`  VARCHAR(100) NOT NULL,
-serial_number VARCHAR(100) NOT NULL,
-cafeteria_id INT NOT NULL,
-FOREIGN KEY (cafeteria_id) REFERENCES cafeterias(id)
+serial_number VARCHAR(100) NOT NULL
+
 );
 
 

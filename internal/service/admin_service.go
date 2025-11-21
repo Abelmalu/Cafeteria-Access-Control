@@ -90,9 +90,9 @@ func (s *AdminService) CreateMeal(ctx context.Context, meal *models.Meal) (*mode
 
 // RegisterDevice implements core.AdminService.
 func (s *AdminService) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
-	if device.Name == "" || device.SerialNumber == "" || device.Cafeteria_id <= 0 {
+	if device.Name == "" || device.SerialNumber == "" {
 
-		return nil, errors.New("device name,serialnumber,cafeteria id can not be nul and less than zero")
+		return nil, errors.New("device name and serialnumber can not be nul and less than zero")
 	}
 
 	deviceReturned, err := s.repo.RegisterDevice(ctx, device)

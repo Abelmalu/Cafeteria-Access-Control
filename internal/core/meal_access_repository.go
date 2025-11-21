@@ -7,6 +7,7 @@ type MealAccessServiceRepository interface {
 	GetMeals() ([]models.Meal, error)
 	GrantOrDenyAccess(currentDate string, studentId int, mealId int, cafeteriaId int) (string, error)
 	GetCafeterias() ([]models.Cafeteria, error)
+	VerifyDevice(SerialNumber string) bool
 
 	// CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error)
 	// CheckMealTime(currentTime string) (*models.Meal, error)

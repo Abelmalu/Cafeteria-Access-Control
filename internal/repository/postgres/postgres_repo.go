@@ -64,3 +64,8 @@ func (r *PostgresRepository) GetCafeterias() ([]models.Cafeteria, error) {
 
 	panic("")
 }
+
+func (r *PostgresRepository) VerifyDevice(SerialNumber string) bool {
+
+	panic("")
+}

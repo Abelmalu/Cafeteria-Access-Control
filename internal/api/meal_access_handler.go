@@ -61,3 +61,24 @@ func (mh *MealAccessHandler) GetCafeterias(w http.ResponseWriter, r *http.Reques
 	w.Write(cafteriasJson)
 
 }
+
+func (mh *MealAccessHandler) VerifyDevice(w http.ResponseWriter, r *http.Request) {
+
+	SerialNumber := chi.URLParam(r, "SerialNumber")
+	fmt.Println(SerialNumber)
+
+	exists := mh.service.VerifyDevice(SerialNumber)
+
+	if exists {
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+		w.Write([]byte(`{"status":"success","message":"the device is a valid registered device"}`))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(`{"status":"error","message":"the device is not a valid registered device"}`))
+
+}

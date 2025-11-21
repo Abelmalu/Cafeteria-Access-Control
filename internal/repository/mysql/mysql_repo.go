@@ -109,12 +109,11 @@ func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*m
 }
 func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error) {
 
-	query := `INSERT INTO devices(name,serial_number,cafeteria_id) VALUES (?,?,?)`
+	query := `INSERT INTO devices(name,serial_number) VALUES (?,?)`
 
 	_, err := r.DB.Exec(query,
 		device.Name,
 		device.SerialNumber,
-		device.Cafeteria_id,
 	)
 	if err != nil {
 
@@ -270,5 +269,23 @@ func (r *MySqlRepository) GetCafeterias() ([]models.Cafeteria, error) {
 	}
 
 	return cafeterias, nil
+
+}
+
+func (r *MySqlRepository) VerifyDevice(SerialNumber string) bool {
+
+	var device models.Device
+
+	query := `SELECT * FROM devices WHERE serial_number=?`
+
+	result := r.DB.QueryRow(query, SerialNumber)
+	err := result.Scan(&device.Id, &device.Name, &device.SerialNumber)
+
+	if err == nil {
+
+		return true
+	}
+
+	return false
 
 }

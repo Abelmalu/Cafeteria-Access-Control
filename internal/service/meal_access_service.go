@@ -139,3 +139,22 @@ func (ms *MealAccessService) GetCafeterias() ([]models.Cafeteria, error) {
 
 	return cafeterias, nil
 }
+
+func (ms *MealAccessService) VerifyDevice(SerialNumber string) bool {
+
+	if SerialNumber == "" {
+
+		return false
+
+	}
+
+	exists := ms.repo.VerifyDevice(SerialNumber)
+
+	if exists {
+
+		return true 
+	}
+
+	return false
+
+}
