@@ -100,7 +100,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		}
 		fmt.Println(grantReturn)
 
-		return nil, errors.New(grantReturn)
+		return student, nil
 	} else {
 
 		return student, errors.New("Access Denied: Wrong Cafeteria.")
@@ -152,7 +152,7 @@ func (ms *MealAccessService) VerifyDevice(SerialNumber string) bool {
 
 	if exists {
 
-		return true 
+		return true
 	}
 
 	return false

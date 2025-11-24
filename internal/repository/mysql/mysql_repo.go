@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -141,6 +142,11 @@ func (r *MySqlRepository) AttemptAccess(rfidTag string) (*models.Student, *model
 		&student.BatchId,
 	)
 
+	if err != nil {
+
+		return nil, &batch, errors.New("student not found")
+	}
+
 	//querying the database to get the
 	batchQuery := `SELECT * FROM batches WHERE id=?`
 
@@ -153,14 +159,9 @@ func (r *MySqlRepository) AttemptAccess(rfidTag string) (*models.Student, *model
 		&batch.Cafeteria_id,
 	)
 
-	if err != nil {
-
-		return nil, &batch, err
-	}
-
 	if BatchRowError != nil {
 
-		return &student, nil, BatchRowError
+		return &student, nil, errors.New("not active batch")
 	}
 
 	return &student, &batch, nil

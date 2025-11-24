@@ -32,14 +32,24 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 
 		errStr := err.Error()
+		w.Header().Set("Content-type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 
-		http.Error(w, errStr, http.StatusBadRequest)
+		errMap := map[string]string{
+
+			"status":  "error",
+			"message": errStr,
+		}
+
+		errJson, _ := json.Marshal(errMap)
+		w.Write(errJson)
+
 		return
 
 	}
 
 	json.NewEncoder(w).Encode(student)
-	w.Write([]byte("student fetched successfully"))
+	// w.Write([]byte("student fetched successfully"))
 
 }
 
