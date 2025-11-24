@@ -3,13 +3,22 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
+	"github.com/go-chi/chi/v5"
 )
 
 type MealAccessHandler struct {
 	service core.MealAccessService
+}
+
+type APIResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	// omitempty ensures the field is not present in the JSON if it's nil
+	Data *models.Student `json:"data,omitempty"`
 }
 
 func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler {
@@ -27,7 +36,7 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "invalid rfid tag", http.StatusBadRequest)
 		return
 	}
-	student, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
+	student, accessStatus, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
 
 	if err != nil {
 
@@ -47,8 +56,41 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		return
 
 	}
+	switch accessStatus {
 
-	json.NewEncoder(w).Encode(student)
+	case "Granted":
+		response := APIResponse{
+			Status:  "success",
+			Message: "Granted",
+			Data:    student,
+		}
+		json.NewEncoder(w).Encode(response)
+
+	case "Denied":
+		response := APIResponse{
+			Status:  "success",
+			Message: "Denied",
+			Data:    student,
+		}
+		json.NewEncoder(w).Encode(response)
+	case "Not Meal Time":
+		response := APIResponse{
+			Status:  "success",
+			Message: "Not Meal Time",
+			Data:    student,
+		}
+		json.NewEncoder(w).Encode(response)
+	case "Wrong Cafeteria":
+		response := APIResponse{
+			Status:  "success",
+			Message: "Wrong Cafeteria",
+			Data:    student,
+		}
+		json.NewEncoder(w).Encode(response)
+
+	}
+
+	// json.NewEncoder(w).Encode(student)
 	// w.Write([]byte("student fetched successfully"))
 
 }

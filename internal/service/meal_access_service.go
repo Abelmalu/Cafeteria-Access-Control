@@ -20,23 +20,23 @@ func NewMealAccessService(repo core.MealAccessServiceRepository) *MealAccessServ
 
 }
 
-func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (*models.Student, error) {
+func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (*models.Student, string, error) {
 
 	if rfidTag == "" {
 
-		return nil, errors.New("RFIDTag value empty")
+		return nil, "", errors.New("RFIDTag value empty")
 
 	}
 	if cafeteriaId == "" {
 
-		return nil, errors.New("cafeteria id of the device is empty")
+		return nil, "", errors.New("cafeteria id of the device is empty")
 
 	}
 	student, batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	if err != nil {
 
-		return nil, err
+		return nil, "", err
 	}
 
 	deviceCafeteriaId, _ := strconv.Atoi(cafeteriaId)
@@ -47,7 +47,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 		meals, mealsErr := ms.repo.GetMeals()
 		if mealsErr != nil {
-			return student, mealsErr
+			return student, "", mealsErr
 		}
 		var mealTime bool = false
 		var mealID int
@@ -88,7 +88,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		}
 		if !mealTime {
 
-			return student, errors.New("Not Meal Time")
+			return student, "Not Meal Time", nil
 		}
 		currentDate := currentTime.Format("2006-01-02")
 
@@ -96,14 +96,15 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 		if grantError != nil {
 
-			return student, grantError
+			return student, "", grantError
 		}
+
 		fmt.Println(grantReturn)
 
-		return student, nil
+		return student, grantReturn, nil
 	} else {
 
-		return student, errors.New("Access Denied: Wrong Cafeteria.")
+		return student, "Wrong Cafeteria", nil
 	}
 
 }

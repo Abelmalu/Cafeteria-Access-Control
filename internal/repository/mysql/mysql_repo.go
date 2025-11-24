@@ -209,6 +209,7 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 	)
 	err := result.Scan(&mealLog.ID, &mealLog.ScanTime, &mealLog.Status, &mealLog.StudentID, &mealLog.CafeteriaID, &mealLog.MealID, &mealLog.DeviceID)
 
+	// if no meal access log found insert the log
 	if err != nil {
 		insertQuery := `INSERT INTO meal_access_logs(scan_time,status,student_id,cafeteria_id,meal_id,device_id) VALUES(?,?,?,?,?,?)`
 		fmt.Println(studentId)
@@ -222,10 +223,10 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 		)
 		if insertMealLogError != nil {
 
-			return "couldn't save to meal logs", insertMealLogError
+			return "", insertMealLogError
 
 		}
-		return "Access Granted", nil
+		return "Granted", nil
 
 	}
 
@@ -245,7 +246,7 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 
 	}
 
-	return "Access Denied! YOu Have Eaten", nil
+	return "Denied", nil
 
 }
 
