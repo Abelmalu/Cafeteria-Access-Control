@@ -2,7 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	//"fmt"
+	//"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -18,7 +20,7 @@ type AdminHandler struct {
 }
 
 type StandardResponse struct {
-	Status  string `json:"status`
+	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
@@ -219,11 +221,42 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	// Save the image in the static foder
 	photoPath := "static/" + handler.Filename
+
+	// 1. Ensure the directory exists (and create it if it doesn't)
+	// os.MkdirAll is preferred as it creates all necessary parent directories.
+	// 0755 is a standard permission set for directories (read/write/execute for owner, read/execute for others).
+	errr := os.MkdirAll("static", 0755)
+	if errr != nil {
+		http.Error(w, "failed to create directory: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// 2. Now attempt to create the file inside the confirmed existing directory
 	dst, err := os.Create(photoPath)
 	if err != nil {
+		// This error is now specifically about file creation within the existing directory
 		http.Error(w, "failed to save photo", http.StatusInternalServerError)
 		return
 	}
+
+	// The rest of your file handling logic goes here (e.g., defer dst.Close(), io.Copy(dst, file))
 	defer dst.Close()
+	// ... rest of the code
+	defer dst.Close()
+
+	io.Copy(dst, file)
+
+	// 5. Store photo path in DB
+	student.ImageURL = handler.Filename
+
+	// 6. Call service
+	created, err := h.service.CreateStudent(r.Context(), &student)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// 7. Return JSON
+	json.NewEncoder(w).Encode(created)
 
 }
