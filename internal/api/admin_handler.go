@@ -2,6 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+	"strconv"
+
 	//"log"
 	"net/http"
 
@@ -167,20 +171,59 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
 
-	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+	// if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
 
-		http.Error(w, "invalid input", http.StatusBadRequest)
+	// 	http.Error(w, "invalid input", http.StatusBadRequest)
 
-		return
-	}
+	// 	return
+	// }
 
-	created, err := h.service.CreateStudent(r.Context(), &student)
+	// created, err := h.service.CreateStudent(r.Context(), &student)
+	// if err != nil {
+	// 	errString := err.Error()
+	// 	http.Error(w, errString, http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// json.NewEncoder(w).Encode(created)
+
+	err := r.ParseMultipartForm(10)
+
 	if err != nil {
-		errString := err.Error()
-		http.Error(w, errString, http.StatusInternalServerError)
-		return
+
+		response := StandardResponse{
+
+			Status:  "error",
+			Message: "couldn't parse the request",
+		}
+		responseJson, _ := json.Marshal(response)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(responseJson)
 	}
 
-	json.NewEncoder(w).Encode(created)
+	student.FirstName = r.FormValue("first_name")
+	student.MiddleName = r.FormValue("middle_name")
+	student.LastName = r.FormValue("last_name")
+	student.RFIDTag = r.FormValue("rfidTag")
+	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
+
+	// 3. Extract the uploaded file
+	file, handler, err := r.FormFile("photo")
+	if err != nil {
+		http.Error(w, "photo is required", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Save the image in the static foder
+	photoPath := "static/" + handler.Filename
+	dst, err := os.Create(photoPath)
+	if err != nil {
+		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
 
 }
