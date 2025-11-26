@@ -18,7 +18,8 @@ type APIResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 	// omitempty ensures the field is not present in the JSON if it's nil
-	Data *models.Student `json:"data,omitempty"`
+	Data  *models.Student `json:"data,omitempty"`
+	Batch string          `json:"batch"`
 }
 
 func NewMealAccessHandler(svc core.MealAccessService) *MealAccessHandler {
@@ -36,7 +37,7 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "invalid rfid tag", http.StatusBadRequest)
 		return
 	}
-	student, accessStatus, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
+	student, accessStatus, batchName, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
 
 	if err != nil {
 
@@ -63,14 +64,16 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 			Status:  "success",
 			Message: "Granted",
 			Data:    student,
+			Batch:   batchName,
 		}
 		json.NewEncoder(w).Encode(response)
 
 	case "Denied":
 		response := APIResponse{
 			Status:  "success",
-			Message: "Denied",
+			Message: " Access Denied",
 			Data:    student,
+			Batch:   batchName,
 		}
 		json.NewEncoder(w).Encode(response)
 	case "Not Meal Time":
@@ -78,6 +81,7 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 			Status:  "success",
 			Message: "Not Meal Time",
 			Data:    student,
+			Batch:   batchName,
 		}
 		json.NewEncoder(w).Encode(response)
 	case "Wrong Cafeteria":
@@ -85,6 +89,7 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 			Status:  "success",
 			Message: "Wrong Cafeteria",
 			Data:    student,
+			Batch:   batchName,
 		}
 		json.NewEncoder(w).Encode(response)
 

@@ -2,7 +2,10 @@ package app
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
+	"io/fs"
+
 	"github.com/abelmalu/CafeteriaAccessControl/config"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
@@ -10,32 +13,38 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
 
-	_ "embed"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
-	"log"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 //go:embed sql/ddl.sql
 var ddlFile string
 
+//go:embed static
+var embeddedStaticFS embed.FS
+
 // App holds the application dependencies and router.
 // This is the main state of the running application.
 type App struct {
-	Config *config.Config
-	Router *chi.Mux // The core Go HTTP router
-	DB     *sql.DB  // The database connection pool
+	Config   *config.Config
+	StaticFS embed.FS
+	Router   *chi.Mux // The core Go HTTP router
+	DB       *sql.DB
+	// The database connection pool
 }
 
 // NewApp loads configuration and initializes the application structure.
 // This function performs the core setup and dependency injection.
 func NewApp() (*App, error) {
+
 	config, err := config.LoadConfig()
 
 	if err != nil {
@@ -81,8 +90,9 @@ func NewApp() (*App, error) {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	app := &App{Config: config, Router: router, DB: currentDBConnection}
-
+	app := &App{Config: config, Router: router, DB: currentDBConnection, StaticFS: embeddedStaticFS}
+	fmt.Println(embeddedStaticFS)
+	fmt.Println("printing  the embeded file static ")
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
 
@@ -150,6 +160,13 @@ func (a *App) setupRoutes() {
 	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
 	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
 
+	// Static file router
+	// Recommended Fix: Change the pattern from "/static/*" to "/static/"
+	// The trailing slash in the pattern tells chi to match all paths beginning with /static/
+	staticSubFS, _ := fs.Sub(embeddedStaticFS, "static")
+	fsHandler := http.FileServer(http.FS(staticSubFS))
+	a.Router.Handle("/static/*", http.StripPrefix("/static/", fsHandler))
+
 	//meal Access routes starts here
 	a.Router.Get("/api/mealaccess/{sutdentRfid}/{cafeteriaId}", http.HandlerFunc(mealAccessHandler.AttemptAccess))
 	a.Router.Get("/api/cafeterias", http.HandlerFunc(mealAccessHandler.GetCafeterias))
@@ -169,6 +186,8 @@ func (a *App) setupRoutes() {
 	a.Router.Post("/api/admin/create/meal", http.HandlerFunc(adminHandler.CreateMeal))
 	a.Router.Post("/api/admin/register/device", http.HandlerFunc(adminHandler.RegisterDevice))
 	// admin routes ends here
+
+	// <-- FIX IS HERE
 
 }
 
