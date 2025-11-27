@@ -1,16 +1,4 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <h1>Hellow from the static file folder</h1>
-    <form action="" method="post"></form>
-    <img src="cafeteria.png" alt="" />
-  </body>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. At iure, cum
+Lorem Lorem Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. At iure, cum
     officia in non maxime sunt quidem magni doloribus autem tempora impedit
     fugiat fugit omnis? Lorem ipsum, dolor sit amet consectetur adipisicing
     elit. Consectetur eius accusantium, assumenda adipisci recusandae dolor
@@ -18,5 +6,3 @@
     aut molestias harum, quae quis nemo blanditiis dignissimos cum voluptatibus!
     Eos harum velit veniam perspiciatis? Numquam nulla qui deserunt expedita
     saepe ipsam eaque.
-  </p>
-</html>
