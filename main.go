@@ -31,6 +31,7 @@ func main() {
 
 	fmt.Println("this is using os.Open")
 	file, _ := os.Open("sql/migrations/example.txt")
+	os.Create("save.txt")
 
 	fileData, _ := io.ReadAll(file)
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	//"fmt"
 	//"fmt"
 	"io"
@@ -220,20 +221,22 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Save the image in the static foder
-	photoPath := "static/" + handler.Filename
+	photoPath := "../../uploads/" + handler.Filename
 
 	// 1. Ensure the directory exists (and create it if it doesn't)
 	// os.MkdirAll is preferred as it creates all necessary parent directories.
 	// 0755 is a standard permission set for directories (read/write/execute for owner, read/execute for others).
-	errr := os.MkdirAll("static", 0755)
+	errr := os.MkdirAll("../../uploads", 0755)
 	if errr != nil {
-		http.Error(w, "failed to create directory: "+err.Error(), http.StatusInternalServerError)
+		fmt.Println(errr)
+		http.Error(w, "failed to create directory: "+errr.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// 2. Now attempt to create the file inside the confirmed existing directory
 	dst, err := os.Create(photoPath)
 	if err != nil {
+		fmt.Println(err)
 		// This error is now specifically about file creation within the existing directory
 		http.Error(w, "failed to save photo", http.StatusInternalServerError)
 		return
