@@ -231,9 +231,10 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	// Save the image in the uploads folder using the unique filename
 	uploadsDir := os.Getenv("UPLOAD_DIR")
-	fmt.Println("printing the upload  dir ")
-	fmt.Println(uploadsDir)
+
 	photoPath := filepath.Join(uploadsDir, newFilename)
+	fmt.Println("printing the photo's file name ")
+	fmt.Println(newFilename)
 
 	// 1. Ensure the directory exists (and create it if it doesn't)
 	errr := os.MkdirAll(uploadsDir, 0755)
