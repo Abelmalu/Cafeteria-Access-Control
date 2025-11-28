@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"os"
+	"path/filepath"
 
 	// // "io"
 	_ "embed"
@@ -15,26 +14,11 @@ var example string
 
 func main() {
 
-	// _, err := os.Create("c:\\users\\abell\\desktop\\mydesktop.txt")
-	// //file := os.Create("")
+	p := filepath.Join("users", "abel", "docs")
+	fmt.Println(p)
 
-	// if err != nil {
+	absolutePath, _ := filepath.Abs("save.txt")
 
-	// 	fmt.Println(err)
-	// }
-
-	fmt.Println(example)
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("")
-
-	fmt.Println("this is using os.Open")
-	file, _ := os.Open("sql/migrations/example.txt")
-	os.Create("save.txt")
-
-	fileData, _ := io.ReadAll(file)
-
-	fmt.Println(string(fileData))
+	fmt.Println(absolutePath)
 
 }

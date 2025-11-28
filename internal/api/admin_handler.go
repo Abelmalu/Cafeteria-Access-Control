@@ -229,8 +229,10 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	extension := filepath.Ext(handler.Filename)
 	newFilename := uniqueID + extension
 
-	// Save the image in the static folder using the unique filename
-	uploadsDir := filepath.Join("..", "..", "uploads")
+	// Save the image in the uploads folder using the unique filename
+	uploadsDir := os.Getenv("UPLOAD_DIR")
+	fmt.Println("printing the upload  dir ")
+	fmt.Println(uploadsDir)
 	photoPath := filepath.Join(uploadsDir, newFilename)
 
 	// 1. Ensure the directory exists (and create it if it doesn't)
