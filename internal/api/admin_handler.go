@@ -3,17 +3,22 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	//"fmt"
 	//"fmt"
 	"io"
 	"os"
-	"strconv"
+
+	//"strconv"
+	"path/filepath"
 
 	//"log"
 	"net/http"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
+	"github.com/google/uuid"
 )
 
 type AdminHandler struct {
@@ -211,7 +216,6 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	student.LastName = r.FormValue("last_name")
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
-
 	// 3. Extract the uploaded file
 	file, handler, err := r.FormFile("photo")
 	if err != nil {
@@ -220,13 +224,17 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Save the image in the static foder
-	photoPath := "../../uploads/" + handler.Filename
+	// Generate a unique filename using uuid and preserve the original extension.
+	uniqueID := uuid.New().String()
+	extension := filepath.Ext(handler.Filename)
+	newFilename := uniqueID + extension
+
+	// Save the image in the static folder using the unique filename
+	uploadsDir := filepath.Join("..", "..", "uploads")
+	photoPath := filepath.Join(uploadsDir, newFilename)
 
 	// 1. Ensure the directory exists (and create it if it doesn't)
-	// os.MkdirAll is preferred as it creates all necessary parent directories.
-	// 0755 is a standard permission set for directories (read/write/execute for owner, read/execute for others).
-	errr := os.MkdirAll("../../uploads", 0755)
+	errr := os.MkdirAll(uploadsDir, 0755)
 	if errr != nil {
 		fmt.Println(errr)
 		http.Error(w, "failed to create directory: "+errr.Error(), http.StatusInternalServerError)
@@ -241,16 +249,19 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to save photo", http.StatusInternalServerError)
 		return
 	}
-
-	// The rest of your file handling logic goes here (e.g., defer dst.Close(), io.Copy(dst, file))
-	defer dst.Close()
-	// ... rest of the code
 	defer dst.Close()
 
-	io.Copy(dst, file)
+	// Copy the uploaded file contents to the destination file
+	if _, err := io.Copy(dst, file); err != nil {
+		fmt.Println(err)
+		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		return
+	}
 
-	// 5. Store photo path in DB
-	student.ImageURL = handler.Filename
+	// 5. Store photo path in DB (store the filename or relative path as desired)
+	student.ImageURL = newFilename
+
+	// 6. Call service
 
 	// 6. Call service
 	created, err := h.service.CreateStudent(r.Context(), &student)
