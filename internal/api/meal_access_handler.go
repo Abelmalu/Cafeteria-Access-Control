@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -38,7 +39,9 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	student, accessStatus, batchName, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
-
+	student.ImageURL = os.Getenv("BASE_URL") + os.Getenv("PUBLIC_PREFIX") + student.ImageURL
+	print("printing the image url")
+	fmt.Println(student.ImageURL)
 	if err != nil {
 
 		errStr := err.Error()
