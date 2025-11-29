@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"os"
 
 	"github.com/abelmalu/CafeteriaAccessControl/config"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
@@ -161,11 +162,11 @@ func (a *App) setupRoutes() {
 	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
 
 	// Static file router
-	// Recommended Fix: Change the pattern from "/static/*" to "/static/"
-	// The trailing slash in the pattern tells chi to match all paths beginning with /static/
 	staticSubFS, _ := fs.Sub(embeddedStaticFS, "static")
 	fsHandler := http.FileServer(http.FS(staticSubFS))
 	a.Router.Handle("/static/*", http.StripPrefix("/static/", fsHandler))
+	uploadHandler := http.FileServer(http.Dir(os.Getenv("UPLOAD_DIR")))
+	a.Router.Handle("/uploads/*", http.StripPrefix("/uploads/", uploadHandler))
 
 	//meal Access routes starts here
 	a.Router.Get("/api/mealaccess/{sutdentRfid}/{cafeteriaId}", http.HandlerFunc(mealAccessHandler.AttemptAccess))
