@@ -141,19 +141,21 @@ func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, 400, reponse)
 
 	}
-	created, serviceErr := h.service.CreateBatch(r.Context(), &batch)
+	_, serviceErr := h.service.CreateBatch(r.Context(), &batch)
 	if serviceErr != nil {
 
-		errorString := serviceErr.Error()
+		response := StandardResponse{
 
-		http.Error(w, errorString, http.StatusBadRequest)
+			Status:  "error",
+			Message: serviceErr.Error(),
+		}
+		respondWithJSON(w, 400, response)
 
 		return
 
 	}
 
 	w.Write([]byte("successfully created a batch"))
-	json.NewEncoder(w).Encode(created)
 
 }
 
@@ -162,9 +164,12 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 
 	decodingErr := json.NewDecoder(r.Body).Decode(&meal)
 	if decodingErr != nil {
-		errorString := decodingErr.Error()
+		response := StandardResponse{
+			Status:  "error",
+			Message: decodingErr.Error(),
+		}
 
-		http.Error(w, errorString, http.StatusBadRequest)
+		respondWithJSON(w, 400, response)
 		return
 
 	}
@@ -172,9 +177,12 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		errorString := err.Error()
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
 
-		http.Error(w, errorString, http.StatusBadRequest)
+		respondWithJSON(w, 400, response)
 		return
 
 	}
@@ -191,8 +199,12 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	decodingErr := json.NewDecoder(r.Body).Decode(&device)
 
 	if decodingErr != nil {
-		errorString := decodingErr.Error()
-		http.Error(w, errorString, http.StatusBadRequest)
+		response := StandardResponse{
+			Status:  "error",
+			Message: decodingErr.Error(),
+		}
+
+		respondWithJSON(w, 400, response)
 		return
 
 	}
@@ -218,6 +230,7 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusCreated, successResponse)
+	return
 
 }
 
@@ -262,28 +275,40 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	errr := os.MkdirAll(uploadsDir, 0755)
 	if errr != nil {
-		fmt.Println(errr)
-		http.Error(w, "failed to create directory: "+errr.Error(), http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: errr.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 
 	dst, err := os.Create(photoPath)
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, file); err != nil {
-		fmt.Println(err)
-		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 
 	student.ImageURL = newFilename
 
-	created, err := h.service.CreateStudent(r.Context(), &student)
+	_, err = h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
 
 		response := StandardResponse{
@@ -295,6 +320,10 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(created)
+	successResponse := StandardResponse{
+		Status:  "success",
+		Message: "Student Registered Successfully",
+	}
+	respondWithJSON(w, 200, successResponse)
 
 }
