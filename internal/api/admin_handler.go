@@ -99,6 +99,8 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 		jsonResponse, _ := json.Marshal(response)
 
 		w.Write(jsonResponse)
+
+		return
 	}
 
 	response := map[string]string{
@@ -244,12 +246,8 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	student.LastName = r.FormValue("last_name")
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
-
 	file, handler, err := r.FormFile("photo")
-	if err != nil {
-		http.Error(w, "photo is required", http.StatusBadRequest)
-		return
-	}
+
 	defer file.Close()
 
 	uniqueID := uuid.New().String()
@@ -287,7 +285,13 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	created, err := h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+		respondWithJSON(w, 400, response)
+
 		return
 	}
 
