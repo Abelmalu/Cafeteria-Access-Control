@@ -3,22 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-
-	//"fmt"
-	//"fmt"
-	"io"
-	"os"
-
-	//"strconv"
-	"path/filepath"
-
-	//"log"
-	"net/http"
-
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 	"github.com/google/uuid"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 type AdminHandler struct {
@@ -43,14 +35,10 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 		w.Write([]byte(`{"status": "error", "message": "Internal JSON encoding error"}`))
 		return
 	}
-
-	// MANDATORY: Set the header
 	w.Header().Set("Content-Type", "application/json")
 
-	// Set the status code
 	w.WriteHeader(code)
 
-	// Write the JSON body
 	w.Write(response)
 }
 
@@ -173,6 +161,7 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
+
 	_, err := h.service.CreateMeal(r.Context(), &meal)
 
 	if err != nil {
@@ -205,6 +194,18 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 		}
 
 		respondWithJSON(w, 400, response)
+		return
+
+	}
+	validationError := device.Validate()
+	if validationError != nil {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, response)
+
 		return
 
 	}
@@ -259,6 +260,19 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
 	file, handler, err := r.FormFile("photo")
+
+	validationError := student.Validate()
+	if validationError != nil {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, response)
+
+		return
+
+	}
 
 	defer file.Close()
 
