@@ -215,7 +215,7 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 		errorResponse := StandardResponse{
 
 			Status:  "Error",
-			Message: "Invalid Cafeteria ID",
+			Message: err.Error(),
 		}
 
 		// http.Error(w, errString, http.StatusBadRequest)
@@ -230,7 +230,6 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusCreated, successResponse)
-	return
 
 }
 
