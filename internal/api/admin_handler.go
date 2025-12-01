@@ -26,8 +26,8 @@ type AdminHandler struct {
 }
 
 type StandardResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Status  string      `json:"status"`
+	Message interface{} `json:"message"`
 }
 
 func NewAdminHandler(service core.AdminService) *AdminHandler {
@@ -61,13 +61,24 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		http.Error(w, "Invalid data sent", http.StatusBadRequest)
 		w.Header().Set("Content-Type", ":application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json, _ := json.Marshal([]byte("Invalid data sent"))
 		w.Write(json)
 
 		return
+	}
+	validationError := cafeteria.Validate()
+	if len(validationError) != 0 {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, response)
+
+		return
+
 	}
 
 	created, err := h.service.CreateCafeteria(r.Context(), &cafeteria)
@@ -179,22 +190,6 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
 
-	// if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-
-	// 	http.Error(w, "invalid input", http.StatusBadRequest)
-
-	// 	return
-	// }
-
-	// created, err := h.service.CreateStudent(r.Context(), &student)
-	// if err != nil {
-	// 	errString := err.Error()
-	// 	http.Error(w, errString, http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// json.NewEncoder(w).Encode(created)
-
 	err := r.ParseMultipartForm(10)
 
 	if err != nil {
@@ -216,7 +211,7 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	student.LastName = r.FormValue("last_name")
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
-	// 3. Extract the uploaded file
+
 	file, handler, err := r.FormFile("photo")
 	if err != nil {
 		http.Error(w, "photo is required", http.StatusBadRequest)
@@ -224,19 +219,16 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Generate a unique filename using uuid and preserve the original extension.
 	uniqueID := uuid.New().String()
 	extension := filepath.Ext(handler.Filename)
 	newFilename := uniqueID + extension
 
-	// Save the image in the uploads folder using the unique filename
 	uploadsDir := os.Getenv("UPLOAD_DIR")
 
 	photoPath := filepath.Join(uploadsDir, newFilename)
 	fmt.Println("printing the photo's file name ")
 	fmt.Println(newFilename)
 
-	// 1. Ensure the directory exists (and create it if it doesn't)
 	errr := os.MkdirAll(uploadsDir, 0755)
 	if errr != nil {
 		fmt.Println(errr)
@@ -244,36 +236,28 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. Now attempt to create the file inside the confirmed existing directory
 	dst, err := os.Create(photoPath)
 	if err != nil {
 		fmt.Println(err)
-		// This error is now specifically about file creation within the existing directory
 		http.Error(w, "failed to save photo", http.StatusInternalServerError)
 		return
 	}
 	defer dst.Close()
 
-	// Copy the uploaded file contents to the destination file
 	if _, err := io.Copy(dst, file); err != nil {
 		fmt.Println(err)
 		http.Error(w, "failed to save photo", http.StatusInternalServerError)
 		return
 	}
 
-	// 5. Store photo path in DB (store the filename or relative path as desired)
 	student.ImageURL = newFilename
 
-	// 6. Call service
-
-	// 6. Call service
 	created, err := h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 7. Return JSON
 	json.NewEncoder(w).Encode(created)
 
 }
