@@ -26,7 +26,7 @@ type AdminHandler struct {
 }
 
 type StandardResponse struct {
-	Status  string      `json:"status"`
+	Status  any         `json:"status"`
 	Message interface{} `json:"message"`
 }
 
@@ -61,15 +61,19 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		w.Header().Set("Content-Type", ":application/json")
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json, _ := json.Marshal([]byte("Invalid data sent"))
+		response := map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		}
+		json, _ := json.Marshal(response)
 		w.Write(json)
 
 		return
 	}
 	validationError := cafeteria.Validate()
-	if len(validationError) != 0 {
+	if validationError != nil {
 		response := StandardResponse{
 			Status:  "error",
 			Message: validationError,
@@ -81,18 +85,28 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	created, err := h.service.CreateCafeteria(r.Context(), &cafeteria)
+	_, err = h.service.CreateCafeteria(r.Context(), &cafeteria)
 
 	if err != nil {
-		errorString := err.Error()
 
-		http.Error(w, errorString, http.StatusInternalServerError)
-		return
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		jsonResponse, _ := json.Marshal(response)
+
+		w.Write(jsonResponse)
 	}
-	message := "Cafeteria successfully created"
 
-	json.NewEncoder(w).Encode(created)
-	json.NewEncoder(w).Encode(message)
+	response := map[string]string{
+		"status":  "Success",
+		"message": "Cafeteria Created Successfully",
+	}
+
+	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -102,9 +116,28 @@ func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&batch)
 	if err != nil {
 
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		response := map[string]string{
+
+			"status":  "error",
+			"message": err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		jsonResponse, _ := json.Marshal(response)
+		w.Write(jsonResponse)
 
 		return
+	}
+	validationError := batch.Validate()
+	if validationError != nil {
+		reponse := StandardResponse{
+
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, reponse)
+
 	}
 	created, serviceErr := h.service.CreateBatch(r.Context(), &batch)
 	if serviceErr != nil {

@@ -82,7 +82,7 @@ func (r *MySqlRepository) CreateBatch(ctx context.Context, batch *models.Batch) 
 
 	if err != nil {
 
-		return nil, err
+		return nil, errors.New("Invalid Cafeteria entered")
 	}
 
 	return batch, nil
@@ -100,7 +100,6 @@ func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*m
 
 	if err != nil {
 
-		fmt.Println("create meal repo")
 		return nil, err
 	}
 	fmt.Println("create meal repo not error")
