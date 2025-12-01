@@ -133,9 +133,18 @@ func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*m
 
 	if err != nil {
 
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+			case 1062:
+				return nil, errors.New("Meal already exists")
+
+			default:
+				return nil, errors.New("try again!something went wrong")
+
+			}
+		}
 	}
-	fmt.Println("create meal repo not error")
 
 	return meal, nil
 
@@ -150,7 +159,17 @@ func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Dev
 	)
 	if err != nil {
 
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+			case 1062:
+				return nil, errors.New("device already exists")
+
+			default:
+				return nil, errors.New("try again!something went wrong")
+
+			}
+		}
 	}
 
 	return device, nil

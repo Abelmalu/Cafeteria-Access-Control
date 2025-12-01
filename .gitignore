@@ -9,3 +9,4 @@
 *.out
 /vendor/
 /uploads/
+.air.toml
