@@ -32,6 +32,8 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		return nil, "", "", errors.New("cafeteria id of the device is empty")
 
 	}
+
+	//get the student with the rfid tag and the batch
 	student, batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	if err != nil {
@@ -41,10 +43,12 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 	deviceCafeteriaId, _ := strconv.Atoi(cafeteriaId)
 
+	//check if student is in the correct cafeteria
 	if deviceCafeteriaId == batch.Cafeteria_id {
 
 		currentTime := time.Now()
 
+		//Getting meals to check if it is meal time
 		meals, mealsErr := ms.repo.GetMeals()
 		if mealsErr != nil {
 			return student, "", batch.Name, mealsErr
@@ -53,6 +57,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		var mealID int
 		for _, value := range meals {
 
+			//change the meal.StartTime to time.Time
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
 
 			finalStartTime := time.Date(
@@ -65,6 +70,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				0,
 				currentTime.Location())
 
+			//change the meal.EndTime to time.Time
 			endTime, _ := time.Parse("15:04:00", value.EndTime)
 			finalEndTime := time.Date(
 				currentTime.Year(),
@@ -76,22 +82,25 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				0,
 				currentTime.Location())
 
+			//checking if the current time blongs to a meal time window
 			if (currentTime.After(finalStartTime) || currentTime.Equal(finalStartTime)) &&
 				(currentTime.Before(finalEndTime) || currentTime.Equal(finalEndTime)) {
 
-				// 3. Found a match! Set true and BREAK the loop immediately.
+				// Found a match! Set true and BREAK the loop immediately.
 				mealTime = true
 				mealID = value.Id
 				break
 			}
 
 		}
+		// if not meal time return the student batch name and not meal time message
 		if !mealTime {
 
 			return student, "Not Meal Time", batch.Name, nil
 		}
 		currentDate := currentTime.Format("2006-01-02")
 
+		// a method to grant or deny a student to the cafeteria
 		grantReturn, grantError := ms.repo.GrantOrDenyAccess(currentDate, student.IdCard, mealID, deviceCafeteriaId)
 
 		if grantError != nil {
