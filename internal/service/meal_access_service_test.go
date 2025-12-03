@@ -27,12 +27,24 @@ func (m MockMealAccessRepo) AttemptAccess(rfidTag string) (*models.Student, *mod
 
 // GetMeals implements core.MealAccessServiceRepository.
 func (m MockMealAccessRepo) GetMeals() ([]models.Meal, error) {
-	panic("unimplemented")
+	meals := []models.Meal{
+		{
+			Name:      "kurs",
+			StartTime: "7:00:00",
+			EndTime:   "17:00:00",
+		},
+		{
+			Name:      "mesa",
+			StartTime: "8:00:00",
+			EndTime:   "9:00:00",
+		},
+	}
+	return meals, nil
 }
 
 // GrantOrDenyAccess implements core.MealAccessServiceRepository.
 func (m MockMealAccessRepo) GrantOrDenyAccess(currentDate string, studentId int, mealId int, cafeteriaId int) (string, error) {
-	panic("unimplemented")
+	return "Granted", nil
 }
 
 func (m MockMealAccessRepo) GetCafeterias() ([]models.Cafeteria, error) {
@@ -56,7 +68,7 @@ func (r *MockMealAccessRepo) CreateBatch(ctx context.Context, batch *models.Batc
 }
 
 func (r *MockMealAccessRepo) CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error) {
-	panic("")
+	panic("unimplemented")
 
 }
 
@@ -240,7 +252,7 @@ func TestMealAccessService_AttemptAccess_Success(t *testing.T) {
 		t.Fatalf("unexpected error %v", err)
 	}
 
-	if !(accessStatus == "Granted") || !(accessStatus == "Denied") {
+	if !(accessStatus == "Granted") {
 
 		t.Fatalf("unexpected error message should be Granted or Denied")
 
