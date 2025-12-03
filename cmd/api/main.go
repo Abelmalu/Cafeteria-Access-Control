@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Application startup failed: %v", err)
 	}
-	defer application.Shutdown()
+	// defer application.Shutdown()
 
 	// Start the HTTP server
 	application.Run()

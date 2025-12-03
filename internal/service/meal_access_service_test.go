@@ -11,13 +11,18 @@ import (
 
 // Mock Repository
 type MockMealAccessRepo struct {
-	cafeterias []models.Cafeteria
-	err        error
+	cafeterias   []models.Cafeteria
+	student      models.Student
+	batch        models.Batch
+	meals        []models.Meal
+	grantMessage string
+	exists       bool
+	err          error
 }
 
 // AttemptAccess implements core.MealAccessServiceRepository.
 func (m MockMealAccessRepo) AttemptAccess(rfidTag string) (*models.Student, *models.Batch, error) {
-	panic("unimplemented")
+	return &m.student, &m.batch, m.err
 }
 
 // GetMeals implements core.MealAccessServiceRepository.
@@ -57,7 +62,9 @@ func (r *MockMealAccessRepo) CreateMeal(ctx context.Context, meal *models.Meal) 
 
 // VerifyDevice implements core.MealAccessServiceRepository.
 func (m MockMealAccessRepo) VerifyDevice(SerialNumber string) bool {
-	panic("unimplemented")
+
+	return m.exists
+
 }
 
 //
@@ -108,4 +115,135 @@ func TestMealAccessService_GetCafeterias_Error(t *testing.T) {
 	if err.Error() != "database error" {
 		t.Errorf("unexpected error message: %v", err)
 	}
+}
+
+func TestMealAccessService_VerifyDevice_Success(t *testing.T) {
+
+	mockRepo := MockMealAccessRepo{
+
+		exists: true,
+	}
+
+	svc := service.NewMealAccessService(mockRepo)
+
+	exists := svc.VerifyDevice("SerialNO2")
+
+	if exists == false {
+
+		t.Fatalf("unexpected error expecting true got %v ", exists)
+	}
+
+}
+
+func TestMealAccessService_VerifyDevices_Error(t *testing.T) {
+
+	mockRepo := MockMealAccessRepo{
+
+		exists: false,
+	}
+
+	svc := service.NewMealAccessService(mockRepo)
+
+	exists := svc.VerifyDevice("SerialNOError")
+
+	if exists == true {
+
+		t.Fatalf("expecting false got %v", exists)
+	}
+
+}
+
+func TestMealAccessService_VerifyDevice_EmptySerialNumber(t *testing.T) {
+	mockRepo := MockMealAccessRepo{
+		exists: false,
+	}
+
+	svc := service.NewMealAccessService(mockRepo)
+
+	// Test with empty serial number
+	exists := svc.VerifyDevice("")
+
+	if exists == true {
+		t.Fatal("expected false for empty serial number, got true")
+	}
+}
+
+// func TestMealAccessService_AttemptAccess_EmptyRFIDTag(t *testing.T) {
+// 	mockRepo := MockMealAccessRepo{
+
+// 		meals: []models.Meal{
+// 			{
+// 				Name:      "kurs",
+// 				StartTime: "7:00:00",
+// 				EndTime:   "2:00:00",
+// 			},
+// 			{
+// 				Name:      "mesa",
+// 				StartTime: "8:00:00",
+// 				EndTime:   "9:00:00",
+// 			},
+// 		},
+// 		student: models.Student{
+
+// 			FirstName:  "abe",
+// 			MiddleName: "gsa",
+// 			LastName:   "hello",
+// 			RFIDTag:    "fc:22",
+// 			BatchId:    1,
+// 			ImageURL:   "assets",
+// 		},
+// 		grantMessage: "Granted",
+// 	}
+
+// }
+// func TestMealAccessService_AttemptAccess_EmptycafeteriaId(t *testing.T) {
+
+// }
+
+func TestMealAccessService_AttemptAccess_Success(t *testing.T) {
+
+	mockRepo := MockMealAccessRepo{
+
+		meals: []models.Meal{
+			{
+				Name:      "kurs",
+				StartTime: "7:00:00",
+				EndTime:   "17:00:00",
+			},
+			{
+				Name:      "mesa",
+				StartTime: "8:00:00",
+				EndTime:   "9:00:00",
+			},
+		},
+		student: models.Student{
+
+			FirstName:  "abe",
+			MiddleName: "gsa",
+			LastName:   "hello",
+			RFIDTag:    "fc:22",
+			BatchId:    1,
+			ImageURL:   "assets",
+		},
+		batch: models.Batch{
+			Name:         "2025",
+			Cafeteria_id: 1,
+		},
+		grantMessage: "Granted",
+	}
+
+	svc := service.NewMealAccessService(mockRepo)
+	_, accessStatus, _, err := svc.AttemptAccess("fc:22", "1")
+
+	if err != nil {
+
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	if !(accessStatus == "Granted") || !(accessStatus == "Denied") {
+
+		t.Fatalf("unexpected error message should be Granted or Denied")
+
+	}
+
 }

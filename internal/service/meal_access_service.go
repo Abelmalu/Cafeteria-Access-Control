@@ -118,26 +118,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 }
 
-// this method checks if the student can eat in the cafeteria
-func CheckValidCafeteria(studentBatchCafeteria, deviceCafeteria string) (bool, error) {
-	panic("unimplemented")
-}
-
-// checks if the current time is a meal time(breakfast,lunch,dinner)
-func CheckMealTime(currentTime string) (*models.Meal, error) {
-	panic("unimplemented")
-}
-
-// Grants or denies access to cafeteria for given student
-func GrantOrDenyAccess(currentDate string, student *models.Student, mealId string, deviceId int) (bool, error) {
-	panic("unimplemented")
-}
-
-// gets accesss logs
-func GetAccessLog(date string) (*models.MealAccessLog, error) {
-	panic("unimplemented")
-}
-
 func (ms *MealAccessService) GetCafeterias() ([]models.Cafeteria, error) {
 
 	cafeterias, err := ms.repo.GetCafeterias()
