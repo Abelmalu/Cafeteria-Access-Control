@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS meals(
     `name` VARCHAR(100) NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL
+
 );
 
 
@@ -70,3 +71,46 @@ CREATE TABLE IF NOT EXISTS meal_access_logs (
     FOREIGN KEY (meal_id) REFERENCES meals(id),
     FOREIGN KEY (device_id) REFERENCES devices(id)
 );
+
+
+-- Altering tables
+ALTER TABLE meals
+DROP INDEX IF EXISTS unique_meal_schedule;
+
+ALTER TABLE meals
+DROP INDEX IF EXISTS unique_meal_schedule,
+ADD CONSTRAINT unique_meal_schedule
+UNIQUE (`name`, start_time, end_time);
+
+ALTER TABLE students 
+DROP INDEX IF EXISTS unique_RFIDTag;
+
+ALTER TABLE students 
+DROP INDEX IF EXISTS unique_RFIDTag,
+ADD CONSTRAINT unique_RFIDTag
+UNIQUE(rfid_tag);
+
+
+ALTER TABLE cafeterias 
+DROP INDEX IF EXISTS unique_cafeteria_name;
+
+ALTER TABLE cafeterias 
+DROP INDEX IF EXISTS unique_cafeteria_name,
+ADD CONSTRAINT unique_cafeteria_name
+UNIQUE(`name`);
+
+ALTER TABLE batches 
+DROP INDEX IF EXISTS unique_batch_name;
+
+ALTER TABLE batches 
+DROP INDEX IF EXISTS unique_batch_name,
+ADD CONSTRAINT unique_batch_name 
+UNIQUE(`name`);
+
+ALTER TABLE devices 
+DROP INDEX IF EXISTS unique_device_name;
+
+ALTER TABLE devices 
+DROP INDEX IF EXISTS unique_device_name,
+ADD CONSTRAINT unique_device_name
+UNIQUE (`name`);

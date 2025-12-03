@@ -9,3 +9,6 @@
 *.out
 /vendor/
 /uploads/
+.air.toml
+/tmp/
+/cmd/api/tmp/

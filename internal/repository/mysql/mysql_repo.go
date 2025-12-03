@@ -7,11 +7,14 @@ import (
 	"fmt"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 )
 
 type MySqlRepository struct {
 	DB *sql.DB
 }
+
+var mysqlErr *mysqlDriver.MySQLError
 
 // NewMySqlRepository creates a new MySqlRepository instance.
 func NewMySqlRepository(db *sql.DB) *MySqlRepository {
@@ -19,9 +22,7 @@ func NewMySqlRepository(db *sql.DB) *MySqlRepository {
 }
 
 func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Student) (*models.Student, error) {
-	// 1. Removed RETURNING clause.
-	// 2. Used MySQL-compatible '?' placeholders.
-	// 3. Mapped all 7 fields correctly (removed the double 'rfid_tag').
+
 	query := `
 		INSERT INTO students (
 			 first_name, middle_name, last_name, batch_id, rfid_tag, image_url
@@ -42,7 +43,17 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 
 	if err != nil {
 		// Return an informative error if the insertion fails
-		return nil, fmt.Errorf("mysql insert failed for student %s: %w", student.IdCard, err)
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+
+			case 1062:
+				return nil, errors.New("Student already exists with this rfid tag")
+			default:
+				return nil, errors.New("try again!something wrong")
+			}
+
+		}
 	}
 
 	// Since we inserted all necessary data and don't need to fetch a new ID,
@@ -63,7 +74,16 @@ func (r *MySqlRepository) CreateCafeteria(ctx context.Context, cafeteria *models
 
 	if err != nil {
 
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+
+			case 1062:
+				return nil, errors.New("cafeteria already exists")
+			default:
+				return nil, errors.New("try again.something went wrong")
+			}
+
+		}
 	}
 
 	return cafeteria, nil
@@ -82,7 +102,20 @@ func (r *MySqlRepository) CreateBatch(ctx context.Context, batch *models.Batch) 
 
 	if err != nil {
 
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+			case 1062:
+				return nil, errors.New("batch already exists")
+			case 1452:
+				return nil, errors.New("The specified cafeteria doesn't exist ")
+
+			default:
+				return nil, errors.New("try again!something went wrong")
+
+			}
+		}
+
 	}
 
 	return batch, nil
@@ -100,10 +133,18 @@ func (r *MySqlRepository) CreateMeal(ctx context.Context, meal *models.Meal) (*m
 
 	if err != nil {
 
-		fmt.Println("create meal repo")
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+			case 1062:
+				return nil, errors.New("Meal already exists")
+
+			default:
+				return nil, errors.New("try again!something went wrong")
+
+			}
+		}
 	}
-	fmt.Println("create meal repo not error")
 
 	return meal, nil
 
@@ -118,7 +159,17 @@ func (r *MySqlRepository) RegisterDevice(ctx context.Context, device *models.Dev
 	)
 	if err != nil {
 
-		return nil, err
+		if errors.As(err, &mysqlErr) {
+
+			switch mysqlErr.Number {
+			case 1062:
+				return nil, errors.New("device already exists")
+
+			default:
+				return nil, errors.New("try again!something went wrong")
+
+			}
+		}
 	}
 
 	return device, nil

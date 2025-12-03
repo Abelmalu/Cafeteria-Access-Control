@@ -13,5 +13,4 @@ type AdminRepository interface {
 	CreateMeal(ctx context.Context, meal *models.Meal) (*models.Meal, error)
 	RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)
 	CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error)
-	
 }

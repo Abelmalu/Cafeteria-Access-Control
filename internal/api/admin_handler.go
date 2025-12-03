@@ -3,22 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-
-	//"fmt"
-	//"fmt"
-	"io"
-	"os"
-
-	//"strconv"
-	"path/filepath"
-
-	//"log"
-	"net/http"
-
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 	"github.com/google/uuid"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 type AdminHandler struct {
@@ -26,8 +18,8 @@ type AdminHandler struct {
 }
 
 type StandardResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Status  any         `json:"status"`
+	Message interface{} `json:"message"`
 }
 
 func NewAdminHandler(service core.AdminService) *AdminHandler {
@@ -43,14 +35,10 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 		w.Write([]byte(`{"status": "error", "message": "Internal JSON encoding error"}`))
 		return
 	}
-
-	// MANDATORY: Set the header
 	w.Header().Set("Content-Type", "application/json")
 
-	// Set the status code
 	w.WriteHeader(code)
 
-	// Write the JSON body
 	w.Write(response)
 }
 
@@ -61,27 +49,54 @@ func (h *AdminHandler) CreateCafeteria(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		http.Error(w, "Invalid data sent", http.StatusBadRequest)
-		w.Header().Set("Content-Type", ":application/json")
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json, _ := json.Marshal([]byte("Invalid data sent"))
+		response := map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		}
+		json, _ := json.Marshal(response)
 		w.Write(json)
 
 		return
 	}
+	validationError := cafeteria.Validate()
+	if validationError != nil {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
 
-	created, err := h.service.CreateCafeteria(r.Context(), &cafeteria)
+		respondWithJSON(w, 400, response)
+
+		return
+
+	}
+
+	_, err = h.service.CreateCafeteria(r.Context(), &cafeteria)
 
 	if err != nil {
-		errorString := err.Error()
 
-		http.Error(w, errorString, http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		jsonResponse, _ := json.Marshal(response)
+
+		w.Write(jsonResponse)
+
 		return
 	}
-	message := "Cafeteria successfully created"
 
-	json.NewEncoder(w).Encode(created)
-	json.NewEncoder(w).Encode(message)
+	response := map[string]string{
+		"status":  "Success",
+		"message": "Cafeteria Created Successfully",
+	}
+
+	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -91,23 +106,44 @@ func (h *AdminHandler) CreateBatch(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&batch)
 	if err != nil {
 
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		response := map[string]string{
+
+			"status":  "error",
+			"message": err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		jsonResponse, _ := json.Marshal(response)
+		w.Write(jsonResponse)
 
 		return
 	}
-	created, serviceErr := h.service.CreateBatch(r.Context(), &batch)
+	validationError := batch.Validate()
+	if validationError != nil {
+		reponse := StandardResponse{
+
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, reponse)
+
+	}
+	_, serviceErr := h.service.CreateBatch(r.Context(), &batch)
 	if serviceErr != nil {
 
-		errorString := serviceErr.Error()
+		response := StandardResponse{
 
-		http.Error(w, errorString, http.StatusBadRequest)
+			Status:  "error",
+			Message: serviceErr.Error(),
+		}
+		respondWithJSON(w, 400, response)
 
 		return
 
 	}
 
 	w.Write([]byte("successfully created a batch"))
-	json.NewEncoder(w).Encode(created)
 
 }
 
@@ -116,23 +152,30 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 
 	decodingErr := json.NewDecoder(r.Body).Decode(&meal)
 	if decodingErr != nil {
-		errorString := decodingErr.Error()
+		response := StandardResponse{
+			Status:  "error",
+			Message: decodingErr.Error(),
+		}
 
-		http.Error(w, errorString, http.StatusBadRequest)
+		respondWithJSON(w, 400, response)
 		return
 
 	}
+
 	_, err := h.service.CreateMeal(r.Context(), &meal)
 
 	if err != nil {
 
-		errorString := err.Error()
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
 
-		http.Error(w, errorString, http.StatusBadRequest)
+		respondWithJSON(w, 400, response)
 		return
 
 	}
-	json.NewEncoder(w).Encode([]byte("Successfully created a meal"))
+	json.NewEncoder(w).Encode("Successfully created a meal")
 
 }
 
@@ -145,8 +188,24 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	decodingErr := json.NewDecoder(r.Body).Decode(&device)
 
 	if decodingErr != nil {
-		errorString := decodingErr.Error()
-		http.Error(w, errorString, http.StatusBadRequest)
+		response := StandardResponse{
+			Status:  "error",
+			Message: decodingErr.Error(),
+		}
+
+		respondWithJSON(w, 400, response)
+		return
+
+	}
+	validationError := device.Validate()
+	if validationError != nil {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, response)
+
 		return
 
 	}
@@ -157,7 +216,7 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 		errorResponse := StandardResponse{
 
 			Status:  "Error",
-			Message: "Invalid Cafeteria ID",
+			Message: err.Error(),
 		}
 
 		// http.Error(w, errString, http.StatusBadRequest)
@@ -178,22 +237,6 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 // CreateStudent handles the api/admin/create/student route
 func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
-
-	// if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-
-	// 	http.Error(w, "invalid input", http.StatusBadRequest)
-
-	// 	return
-	// }
-
-	// created, err := h.service.CreateStudent(r.Context(), &student)
-	// if err != nil {
-	// 	errString := err.Error()
-	// 	http.Error(w, errString, http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// json.NewEncoder(w).Encode(created)
 
 	err := r.ParseMultipartForm(10)
 
@@ -216,64 +259,84 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	student.LastName = r.FormValue("last_name")
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
-	// 3. Extract the uploaded file
 	file, handler, err := r.FormFile("photo")
-	if err != nil {
-		http.Error(w, "photo is required", http.StatusBadRequest)
+
+	validationError := student.Validate()
+	if validationError != nil {
+		response := StandardResponse{
+			Status:  "error",
+			Message: validationError,
+		}
+
+		respondWithJSON(w, 400, response)
+
 		return
+
 	}
+
 	defer file.Close()
 
-	// Generate a unique filename using uuid and preserve the original extension.
 	uniqueID := uuid.New().String()
 	extension := filepath.Ext(handler.Filename)
 	newFilename := uniqueID + extension
 
-	// Save the image in the uploads folder using the unique filename
 	uploadsDir := os.Getenv("UPLOAD_DIR")
 
 	photoPath := filepath.Join(uploadsDir, newFilename)
 	fmt.Println("printing the photo's file name ")
 	fmt.Println(newFilename)
 
-	// 1. Ensure the directory exists (and create it if it doesn't)
 	errr := os.MkdirAll(uploadsDir, 0755)
 	if errr != nil {
-		fmt.Println(errr)
-		http.Error(w, "failed to create directory: "+errr.Error(), http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: errr.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 
-	// 2. Now attempt to create the file inside the confirmed existing directory
 	dst, err := os.Create(photoPath)
 	if err != nil {
-		fmt.Println(err)
-		// This error is now specifically about file creation within the existing directory
-		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 	defer dst.Close()
 
-	// Copy the uploaded file contents to the destination file
 	if _, err := io.Copy(dst, file); err != nil {
-		fmt.Println(err)
-		http.Error(w, "failed to save photo", http.StatusInternalServerError)
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+
+		respondWithJSON(w, 500, response)
 		return
 	}
 
-	// 5. Store photo path in DB (store the filename or relative path as desired)
 	student.ImageURL = newFilename
 
-	// 6. Call service
-
-	// 6. Call service
-	created, err := h.service.CreateStudent(r.Context(), &student)
+	_, err = h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		response := StandardResponse{
+			Status:  "error",
+			Message: err.Error(),
+		}
+		respondWithJSON(w, 400, response)
+
 		return
 	}
 
-	// 7. Return JSON
-	json.NewEncoder(w).Encode(created)
+	successResponse := StandardResponse{
+		Status:  "success",
+		Message: "Student Registered Successfully",
+	}
+	respondWithJSON(w, 200, successResponse)
 
 }

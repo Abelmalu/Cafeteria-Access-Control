@@ -40,6 +40,7 @@ type App struct {
 	Router   *chi.Mux // The core Go HTTP router
 	DB       *sql.DB
 	// The database connection pool
+	MealAccessSvc *service.MealAccessService
 }
 
 // NewApp loads configuration and initializes the application structure.
@@ -158,8 +159,8 @@ func (a *App) setupRoutes() {
 	}
 	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
 
-	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
-	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
+	a.MealAccessSvc = service.NewMealAccessService(MealAccessRepo)
+	mealAccessHandler := api.NewMealAccessHandler(a.MealAccessSvc)
 
 	// Static file router
 	staticSubFS, _ := fs.Sub(embeddedStaticFS, "static")

@@ -21,21 +21,6 @@ func NewAdminService(repo core.AdminRepository) *AdminService {
 }
 
 // CreateBatch implements core.AdminService.
-func (s *AdminService) CreateBatch(ctx context.Context, batch *models.Batch) (*models.Batch, error) {
-	if batch.Cafeteria_id == 0 || batch.Name == "" {
-
-		return nil, errors.New("cafeteria_id and/or batch name are required ")
-	}
-
-	_, err := s.repo.CreateBatch(ctx, batch)
-	if err != nil {
-
-		return nil, err
-	}
-
-	return batch, nil
-
-}
 
 // CreateCafeteria implements core.AdminService.
 func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
@@ -51,6 +36,22 @@ func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Ca
 	}
 
 	return cafeteria, nil
+}
+
+func (s *AdminService) CreateBatch(ctx context.Context, batch *models.Batch) (*models.Batch, error) {
+	if batch.Cafeteria_id == 0 || batch.Name == "" {
+
+		return nil, errors.New("cafeteria_id and/or batch name are required ")
+	}
+
+	_, err := s.repo.CreateBatch(ctx, batch)
+	if err != nil {
+
+		return nil, err
+	}
+
+	return batch, nil
+
 }
 
 // CreateMeal implements core.AdminService.
@@ -118,8 +119,3 @@ func (s *AdminService) CreateStudent(ctx context.Context, student *models.Studen
 	// The repository handles the actual database INSERT.
 	return s.repo.CreateStudent(ctx, student)
 }
-
-// func CreateBatch(ctx context.Context, student *models.Student) (*models.Student, error)       {}
-// func RegisterDevice(ctx context.Context, device *models.Device) (*models.Device, error)       {}
-// func CreateMeal(ctx context.Context, student *models.Student) (*models.Student, error)        {}
-// func CreateCafeteria(ctx context.Context, location *models.Device) (*models.Cafeteria, error) {}

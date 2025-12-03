@@ -1,24 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"path/filepath"
-
-	// // "io"
-	_ "embed"
-	// "os"
-)
-
-//go:embed sql/migrations/example.txt
-var example string
-
-func main() {
-
-	p := filepath.Join("users", "abel", "docs")
-	fmt.Println(p)
-
-	absolutePath, _ := filepath.Abs("save.txt")
-
-	fmt.Println(absolutePath)
-
+// Add takes two integers and returns the sum
+func Add(x, y int) int {
+	return x + y + y
 }
