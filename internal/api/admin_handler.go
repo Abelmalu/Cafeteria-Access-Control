@@ -175,7 +175,7 @@ func (h *AdminHandler) CreateMeal(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	json.NewEncoder(w).Encode([]byte("Successfully created a meal"))
+	json.NewEncoder(w).Encode("Successfully created a meal")
 
 }
 
