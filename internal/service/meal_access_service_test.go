@@ -3,7 +3,6 @@ package service_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
@@ -384,7 +383,6 @@ func TestMealAccessService_AttemptAccess_NotMealTime(t *testing.T) {
 
 	svc := service.NewMealAccessService(mockRepo)
 	_, accessStatus, _, _ := svc.AttemptAccess("fc:22", "1")
-	fmt.Println(accessStatus, "from the test coe ")
 
 	if accessStatus != "Not Meal Time" {
 
