@@ -111,8 +111,8 @@ func (mh *MealAccessHandler) GetCafeterias(w http.ResponseWriter, r *http.Reques
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status":"error","message":"something went wrong"}`))
-
+		w.Write([]byte(`{"status":"error","message":"Couldn't fetch Cafeterias"}`))
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
