@@ -1,0 +1,1 @@
+GET http://localhost:8080/api/mealaccess/F9:CE:D9:9B/1

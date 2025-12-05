@@ -199,7 +199,7 @@ func (a *App) Run() {
 	ServerPort := strconv.Itoa(a.Config.ServerPort)
 
 	// The router (a.Router) handles all the routes and middleware defined above.
-	if err := http.ListenAndServe("127.0.0.1:"+ServerPort, a.Router); err != nil {
+	if err := http.ListenAndServe("192.168.100.169:"+ServerPort, a.Router); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
