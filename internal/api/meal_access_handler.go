@@ -38,10 +38,8 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "invalid rfid tag", http.StatusBadRequest)
 		return
 	}
+	fmt.Println("reached before calling service")
 	student, accessStatus, batchName, err := mh.service.AttemptAccess(studentRfId, cafeteriaId)
-	student.ImageURL = os.Getenv("BASE_URL") + os.Getenv("PUBLIC_PREFIX") + student.ImageURL
-	print("printing the image url")
-	fmt.Println(student.ImageURL)
 	if err != nil {
 
 		errStr := err.Error()
@@ -60,6 +58,13 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		return
 
 	}
+	fmt.Println("reached after calling service")
+
+	student.ImageURL = os.Getenv("BASE_URL") + os.Getenv("PUBLIC_PREFIX") + student.ImageURL
+	fmt.Println("reached after calling service and trying to send image")
+	print("printing the image url")
+	fmt.Println(student.ImageURL)
+
 	switch accessStatus {
 
 	case "Granted":
@@ -97,9 +102,6 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 		json.NewEncoder(w).Encode(response)
 
 	}
-
-	// json.NewEncoder(w).Encode(student)
-	// w.Write([]byte("student fetched successfully"))
 
 }
 
