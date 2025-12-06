@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -10,9 +11,12 @@ import (
 	"github.com/abelmalu/CafeteriaAccessControl/config"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/api"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/core"
+	"github.com/abelmalu/CafeteriaAccessControl/internal/models"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/mysql"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/repository/postgres"
 	"github.com/abelmalu/CafeteriaAccessControl/internal/service"
+	"github.com/brianvoe/gofakeit/v6"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 
 	"log"
 	"net/http"
@@ -22,12 +26,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	mysqlDriver "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5"
 )
 
 //go:embed sql/ddl.sql
 var ddlFile string
+
+var mysqlErr *mysqlDriver.MySQLError
 
 //go:embed static
 var embeddedStaticFS embed.FS
@@ -39,8 +44,7 @@ type App struct {
 	StaticFS embed.FS
 	Router   *chi.Mux // The core Go HTTP router
 	DB       *sql.DB
-	// The database connection pool
-	MealAccessSvc *service.MealAccessService
+	//MealAccessSvc *service.MealAccessService
 }
 
 // NewApp loads configuration and initializes the application structure.
@@ -97,6 +101,7 @@ func NewApp() (*App, error) {
 	fmt.Println("printing  the embeded file static ")
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
+	app.CreateDummyStudents()
 
 	return app, nil
 }
@@ -159,8 +164,8 @@ func (a *App) setupRoutes() {
 	}
 	log.Println("INFO: Abstract Repository initialized with concrete implementation:", a.Config.DBType)
 
-	a.MealAccessSvc = service.NewMealAccessService(MealAccessRepo)
-	mealAccessHandler := api.NewMealAccessHandler(a.MealAccessSvc)
+	mealAccessSvc := service.NewMealAccessService(MealAccessRepo)
+	mealAccessHandler := api.NewMealAccessHandler(mealAccessSvc)
 
 	// Static file router
 	staticSubFS, _ := fs.Sub(embeddedStaticFS, "static")
@@ -190,6 +195,61 @@ func (a *App) setupRoutes() {
 	// admin routes ends here
 
 	// <-- FIX IS HERE
+
+}
+
+func (a *App) CreateDummyStudents() {
+
+	fmt.Println(gofakeit.Name())
+	var total int = 10000
+
+	for i := 0; i <= total; i++ {
+		student := models.Student{}
+
+		student.FirstName = gofakeit.FirstName()
+		student.MiddleName = gofakeit.MiddleName()
+		student.LastName = gofakeit.LastName()
+		student.BatchId = 1
+		student.RFIDTag = fmt.Sprintf("79:22 %d", i)
+		student.ImageURL = fmt.Sprintf(
+			"https://picsum.photos/seed/%d/200/200",
+			i,
+		)
+
+		query := `
+		INSERT INTO students (
+			 first_name, middle_name, last_name, batch_id, rfid_tag, image_url
+		) 
+		VALUES ( ?, ?, ?, ?, ?, ?)`
+
+		// Execute the query using ExecContext
+
+		_, err := a.DB.Exec(query,
+
+			student.FirstName,  // ?2
+			student.MiddleName, // ?3
+			student.LastName,   // ?4
+			student.BatchId,    // ?5
+			student.RFIDTag,    // ?6
+			student.ImageURL,   // ?7
+		)
+
+		if err != nil {
+			// Return an informative error if the insertion fails
+			if errors.As(err, &mysqlErr) {
+
+				switch mysqlErr.Number {
+
+				case 1062:
+					fmt.Println("Student already exists with this rfid tag")
+				default:
+					fmt.Println(err)
+				}
+
+			}
+		}
+
+	}
 
 }
 

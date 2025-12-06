@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
+
 	"github.com/joho/godotenv"
 )
 
@@ -21,8 +22,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Application startup failed: %v", err)
 	}
-	// defer application.Shutdown()
 
 	// Start the HTTP server
 	application.Run()
+
 }

@@ -7,6 +7,7 @@ require (
 	github.com/VictoriaMetrics/fastcache v1.5.8 // indirect
 	github.com/aofei/air v0.22.0 // indirect
 	github.com/aofei/mimesniffer v1.1.6 // indirect
+	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
