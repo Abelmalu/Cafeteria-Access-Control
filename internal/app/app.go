@@ -101,7 +101,8 @@ func NewApp() (*App, error) {
 	fmt.Println("printing  the embeded file static ")
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
-	app.CreateDummyStudents()
+	//app.CreateDummyStudents()
+	app.CreateDummyMealAcces()
 
 	return app, nil
 }
@@ -200,7 +201,6 @@ func (a *App) setupRoutes() {
 
 func (a *App) CreateDummyStudents() {
 
-	fmt.Println(gofakeit.Name())
 	var total int = 10000
 
 	for i := 0; i <= total; i++ {
@@ -232,6 +232,64 @@ func (a *App) CreateDummyStudents() {
 			student.BatchId,    // ?5
 			student.RFIDTag,    // ?6
 			student.ImageURL,   // ?7
+		)
+
+		if err != nil {
+			// Return an informative error if the insertion fails
+			if errors.As(err, &mysqlErr) {
+
+				switch mysqlErr.Number {
+
+				case 1062:
+					fmt.Println("Student already exists with this rfid tag")
+				default:
+					fmt.Println(err)
+				}
+
+			}
+		}
+
+	}
+
+}
+
+func (a *App) CreateDummyMealAcces() {
+	fmt.Println(gofakeit.Date().Format("2006-01-02"))
+
+	var total int = 100000
+
+	for i := 0; i <= total; i++ {
+		mealLog := models.MealAccessLog{}
+
+		mealLog.ScanTime = gofakeit.Date().Format("2006-01-02")
+		mealLog.Status = "Denied"
+		mealLog.MealID = 1
+		mealLog.CafeteriaID = 1
+		if i <= 9999 {
+			mealLog.StudentID = fmt.Sprintf("%d", i)
+
+		} else {
+			for j := 10000; j <= 100000; j++ {
+				mealLog.StudentID = fmt.Sprintf("%d", j)
+
+			}
+
+		}
+
+		mealLog.DeviceID = 1
+
+		query := ` INSERT INTO
+		meal_access_logs(scan_time,status,student_id,cafeteria_id,meal_id,device_id) VALUES(?,?,?,?,?,?)`
+
+		// Execute the query using ExecContext
+
+		_, err := a.DB.Exec(query,
+
+			mealLog.ScanTime,
+			mealLog.Status,
+			mealLog.StudentID,
+			mealLog.CafeteriaID,
+			mealLog.MealID,
 		)
 
 		if err != nil {
