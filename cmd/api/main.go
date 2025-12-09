@@ -6,10 +6,15 @@ import (
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
 
+	"github.com/abelmalu/CafeteriaAccessControl/internal/redis"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	redisdb.InitRedis()
+
+	log.Println("Starting server...")
 
 	errEnv := godotenv.Load()
 

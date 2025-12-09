@@ -226,6 +226,7 @@ func (r *MySqlRepository) GetMeals() ([]models.Meal, error) {
 	mealQuery := `SELECT * FROM meals`
 
 	mealRows, mealRowsErr := r.DB.Query(mealQuery)
+	defer mealRows.Close()
 	if mealRowsErr != nil {
 
 		return nil, mealRowsErr
@@ -258,6 +259,7 @@ func (r *MySqlRepository) GrantOrDenyAccess(currentDate string, studentId int, m
 		studentId,
 		currentDate,
 	)
+
 	err := result.Scan(&mealLog.ID, &mealLog.ScanTime, &mealLog.Status, &mealLog.StudentID, &mealLog.CafeteriaID, &mealLog.MealID, &mealLog.DeviceID)
 
 	// if no meal access log found insert the log
@@ -312,6 +314,7 @@ func (r *MySqlRepository) GetCafeterias() ([]models.Cafeteria, error) {
 
 		return nil, err
 	}
+	defer results.Close()
 	for results.Next() {
 		var cafeteria models.Cafeteria
 

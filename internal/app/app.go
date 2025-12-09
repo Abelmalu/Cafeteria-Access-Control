@@ -101,8 +101,8 @@ func NewApp() (*App, error) {
 	fmt.Println("printing  the embeded file static ")
 	// 2. Setup all layers and routes: Performs the dependency injection.
 	app.setupRoutes()
+	//app.CreateDummyMealAcces()
 	//app.CreateDummyStudents()
-	app.CreateDummyMealAcces()
 
 	return app, nil
 }
@@ -144,9 +144,9 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 	}
 
 	// 3. Apply pooling and verify connection (this part is vendor-agnostic)
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5) // Reduced from 25 to 5 for slightly better resource usage when idle
-	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(25)                 // Reduced from 25 to 5 for slightly better resource usage when idle
+	db.SetConnMaxLifetime(5 * time.Minute) //CONNECTION life time before time out
 
 	if err := db.Ping(); err != nil {
 		db.Close()
@@ -258,38 +258,29 @@ func (a *App) CreateDummyMealAcces() {
 
 	var total int = 100000
 
-	for i := 0; i <= total; i++ {
+	for i := 1; i <= total; i++ {
+		fmt.Println("in the loop")
 		mealLog := models.MealAccessLog{}
 
 		mealLog.ScanTime = gofakeit.Date().Format("2006-01-02")
 		mealLog.Status = "Denied"
 		mealLog.MealID = 1
 		mealLog.CafeteriaID = 1
-		if i <= 9999 {
-			mealLog.StudentID = fmt.Sprintf("%d", i)
-
-		} else {
-			for j := 10000; j <= 100000; j++ {
-				mealLog.StudentID = fmt.Sprintf("%d", j)
-
-			}
-
-		}
-
 		mealLog.DeviceID = 1
-
-		query := ` INSERT INTO
+		mealLog.StudentID = fmt.Sprint("555")
+		mealAccessQuery := ` INSERT INTO
 		meal_access_logs(scan_time,status,student_id,cafeteria_id,meal_id,device_id) VALUES(?,?,?,?,?,?)`
 
 		// Execute the query using ExecContext
 
-		_, err := a.DB.Exec(query,
+		_, err := a.DB.Exec(mealAccessQuery,
 
 			mealLog.ScanTime,
 			mealLog.Status,
 			mealLog.StudentID,
 			mealLog.CafeteriaID,
 			mealLog.MealID,
+			mealLog.DeviceID,
 		)
 
 		if err != nil {
@@ -299,7 +290,7 @@ func (a *App) CreateDummyMealAcces() {
 				switch mysqlErr.Number {
 
 				case 1062:
-					fmt.Println("Student already exists with this rfid tag")
+					fmt.Println("meal access log already exists")
 				default:
 					fmt.Println(err)
 				}
@@ -313,11 +304,14 @@ func (a *App) CreateDummyMealAcces() {
 
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
-	log.Printf("Server listening on :%v", a.Config.ServerPort)
+
+	host := "127.0.0.1"
+	// host := "192.168.100.169"
+	log.Printf("Server listening on %v :%v", host, a.Config.ServerPort)
 	ServerPort := strconv.Itoa(a.Config.ServerPort)
 
 	// The router (a.Router) handles all the routes and middleware defined above.
-	if err := http.ListenAndServe("192.168.100.169:"+ServerPort, a.Router); err != nil {
+	if err := http.ListenAndServe(host+":"+ServerPort, a.Router); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }

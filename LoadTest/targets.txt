@@ -1,1 +1,3 @@
-GET http://localhost:8080/api/mealaccess/F9:CE:D9:9B/1
+GET http://localhost:8080/api/mealaccess/79:22 2/555
+
+
