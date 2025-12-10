@@ -78,13 +78,23 @@ A Go-based service for managing and logging access to cafeteria meals using RFID
    - `/static/*` - Serve embedded static assets.
    - `/uploads/*` - Serve uploaded files.
 
-## Project Structure
+## Architecture & Project Structure
 
-- `cmd/api`: Application entry point.
-- `config`: Configuration loading and validation.
-- `internal/api`: HTTP handlers for API endpoints.
-- `internal/app`: Core application setup (DB, Router, Wiring).
-- `internal/core`: Domain interfaces and business logic definitions.
-- `internal/models`: Data structures.
-- `internal/repository`: Database implementations (MySQL/Postgres).
-- `internal/service`: Business logic implementation.
+This project follows the **Standard Go Project Layout** and implements **Clean Architecture** principles to ensure separation of concerns, testability, and maintainability.
+
+### 1. Standard Go Layout
+- **`cmd/`**: Contains the main application entry points.
+- **`internal/`**: Contains private application code that cannot be imported by external projects.
+
+### 2. Clean Architecture Layers
+The `internal` directory is structured to separate the domain logic from implementation details:
+
+| Directory | Layer | Description |
+| :--- | :--- | :--- |
+| **`internal/core`** | **Domain / Ports** | Defines the core business interfaces (e.g., repositories, service interfaces) without implementation details. |
+| **`internal/models`** | **Entities** | Pure data structures representing the domain entities (e.g., `Student`, `AccessLog`). |
+| **`internal/service`** | **Use Cases** | Implements the business logic using interfaces defined in `core`. Depends only on `core` and `models`. |
+| **`internal/repository`** | **Adapters (Driven)** | Concrete implementations of the interfaces defined in `core` (e.g., `MySQL`, `PostgreSQL`). |
+| **`internal/api`** | **Adapters (Driving)** | HTTP handlers and routers that drive the application services. |
+| **`internal/app`** | **Configuration** | Wires everything together (dependency injection, router setup, database connection). |
+| **`config`** | **Configuration** | Handles reading and validating environment variables. |
