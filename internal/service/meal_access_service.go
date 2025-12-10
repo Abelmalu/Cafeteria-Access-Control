@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -34,6 +33,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 	}
 
 	//get the student with the rfid tag and the batch
+
 	student, batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	if err != nil {
@@ -49,23 +49,16 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 		currentTime := time.Now()
 
 		//Getting meals to check if it is meal time
-		fmt.Println("before get meals")
 		meals, mealsErr := ms.repo.GetMeals()
 
-		fmt.Println("after get meals")
 		if mealsErr != nil {
-			fmt.Println("in meals error")
 
 			return student, "", batch.Name, mealsErr
 		}
 
-		if len(meals) == 0 {
-			fmt.Println("CRITICAL: GetMeals returned an empty slice. Check DB seeding/query.")
-		}
 		var mealTime bool = false
 		var mealID int
 		for _, value := range meals {
-			fmt.Println("in meals loop")
 
 			//change the meal.StartTime to time.Time
 			startTime, _ := time.Parse("15:04:00", value.StartTime)
@@ -79,8 +72,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				startTime.Second(),
 				0,
 				currentTime.Location())
-			fmt.Println("final start time")
-			fmt.Println(finalStartTime)
 
 			//change the meal.EndTime to time.Time
 			endTime, _ := time.Parse("15:04:00", value.EndTime)
@@ -93,8 +84,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 				endTime.Second(),
 				0,
 				currentTime.Location())
-			fmt.Println("final end time")
-			fmt.Println(finalEndTime)
 
 			//checking if the current time blongs to a meal time window
 			if (currentTime.After(finalStartTime) || currentTime.Equal(finalStartTime)) &&
@@ -121,8 +110,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 			return student, "", batch.Name, grantError
 		}
-
-		fmt.Println(grantReturn)
 
 		return student, grantReturn, batch.Name, nil
 	} else {
