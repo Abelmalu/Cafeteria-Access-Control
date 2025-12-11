@@ -37,7 +37,7 @@ func LoadConfig() (*Config, error) {
 	cfg.DBHost = os.Getenv("DB_HOST")
 	if cfg.DBHost == "" {
 
-		return nil, fmt.Errorf("DB_Host environment variable is required")
+		return nil, fmt.Errorf("DB_HOST environment variable is required")
 	}
 	dbPortStr := os.Getenv("DB_PORT")
 
