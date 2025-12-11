@@ -1,28 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
-	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	errEnv := godotenv.Load()
+	// errEnv := godotenv.Load()
 
-	if errEnv != nil {
+	// if errEnv != nil {
 
-		fmt.Println(errEnv)
-	}
+	// 	fmt.Println(errEnv)
+	// }
 	// Initialize the application: loads config, connects DB, sets up routes
 	application, err := app.NewApp()
 	if err != nil {
 		log.Fatalf("Application startup failed: %v", err)
 	}
-	// defer application.Shutdown()
 
 	// Start the HTTP server
 	application.Run()
+
 }

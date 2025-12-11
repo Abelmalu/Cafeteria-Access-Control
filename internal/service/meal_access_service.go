@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -34,6 +33,7 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 	}
 
 	//get the student with the rfid tag and the batch
+
 	student, batch, err := ms.repo.AttemptAccess(rfidTag)
 
 	if err != nil {
@@ -50,9 +50,12 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 		//Getting meals to check if it is meal time
 		meals, mealsErr := ms.repo.GetMeals()
+
 		if mealsErr != nil {
+
 			return student, "", batch.Name, mealsErr
 		}
+
 		var mealTime bool = false
 		var mealID int
 		for _, value := range meals {
@@ -107,8 +110,6 @@ func (ms *MealAccessService) AttemptAccess(rfidTag string, cafeteriaId string) (
 
 			return student, "", batch.Name, grantError
 		}
-
-		fmt.Println(grantReturn)
 
 		return student, grantReturn, batch.Name, nil
 	} else {

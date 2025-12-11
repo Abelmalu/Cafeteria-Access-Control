@@ -7,7 +7,9 @@ require (
 	github.com/VictoriaMetrics/fastcache v1.5.8 // indirect
 	github.com/aofei/air v0.22.0 // indirect
 	github.com/aofei/mimesniffer v1.1.6 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
 	github.com/go-chi/cors v1.2.2 // indirect
@@ -24,6 +26,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pelletier/go-toml v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/tdewolff/minify/v2 v2.9.16 // indirect
 	github.com/tdewolff/parse/v2 v2.5.15 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.1 // indirect

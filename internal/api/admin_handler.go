@@ -278,7 +278,7 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	uniqueID := uuid.New().String()
 	extension := filepath.Ext(handler.Filename)
-	newFilename := uniqueID + extension
+	newFilename := uniqueID + extension //  example image1 + .png = image1.png
 
 	uploadsDir := os.Getenv("UPLOAD_DIR")
 
