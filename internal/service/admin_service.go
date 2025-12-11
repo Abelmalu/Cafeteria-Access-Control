@@ -26,7 +26,7 @@ func NewAdminService(repo core.AdminRepository) *AdminService {
 func (s *AdminService) CreateCafeteria(ctx context.Context, cafeteria *models.Cafeteria) (*models.Cafeteria, error) {
 	if cafeteria.Name == "" || cafeteria.Location == "" {
 
-		return nil, errors.New("Cafeteria id and/or Cafeteria name are required")
+		return nil, errors.New("cafeteria id and/or cafeteria name are required")
 
 	}
 	_, err := s.repo.CreateCafeteria(ctx, cafeteria)

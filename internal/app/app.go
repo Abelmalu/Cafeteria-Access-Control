@@ -143,7 +143,7 @@ func initDB(cfg *config.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("opening database connection for %s: %w", driverName, err)
 	}
 
-	// 3. Apply pooling and verify connection (this part is vendor-agnostic)
+	//  Apply pooling and verify connection (this part is vendor-agnostic)
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(25)                 // Reduced from 25 to 5 for slightly better resource usage when idle
 	db.SetConnMaxLifetime(5 * time.Minute) //CONNECTION life time before time out
@@ -176,6 +176,7 @@ func (a *App) setupRoutes() {
 	a.Router.Handle("/uploads/*", http.StripPrefix("/uploads/", uploadHandler))
 
 	//meal Access routes starts here
+
 	a.Router.Get("/api/mealaccess/{sutdentRfid}/{cafeteriaId}", http.HandlerFunc(mealAccessHandler.AttemptAccess))
 	a.Router.Get("/api/cafeterias", http.HandlerFunc(mealAccessHandler.GetCafeterias))
 	a.Router.Get("/api/device/verify/{SerialNumber}", http.HandlerFunc(mealAccessHandler.VerifyDevice))
@@ -254,7 +255,6 @@ func (a *App) CreateDummyStudents() {
 }
 
 func (a *App) CreateDummyMealAcces() {
-	fmt.Println(gofakeit.Date().Format("2006-01-02"))
 
 	var total int = 100000
 
@@ -305,8 +305,8 @@ func (a *App) CreateDummyMealAcces() {
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
 
-	host := "127.0.0.1"
-	// host := "192.168.100.169"
+	// host := "127.0.0.1"
+	host := "192.168.100.169"
 	log.Printf("Server listening on %v :%v", host, a.Config.ServerPort)
 	ServerPort := strconv.Itoa(a.Config.ServerPort)
 
