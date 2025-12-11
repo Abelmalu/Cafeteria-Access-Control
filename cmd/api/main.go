@@ -10,12 +10,12 @@ import (
 
 func main() {
 
-	errEnv := godotenv.Load()
+	// errEnv := godotenv.Load()
 
-	if errEnv != nil {
+	// if errEnv != nil {
 
-		fmt.Println(errEnv)
-	}
+	// 	fmt.Println(errEnv)
+	// }
 	// Initialize the application: loads config, connects DB, sets up routes
 	application, err := app.NewApp()
 	if err != nil {
