@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
-	"github.com/joho/godotenv"
 )
 
 func main() {
