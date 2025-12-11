@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/abelmalu/CafeteriaAccessControl/internal/app"
