@@ -55,10 +55,10 @@ func LoadConfig() (*Config, error) {
 
 	cfg.DBName = os.Getenv("DB_NAME")
 
-	if cfg.DBName == "" {
+	// if cfg.DBName == "" {
 
-		return nil, fmt.Errorf("DB_NAME environment variable is required")
-	}
+	// 	return nil, fmt.Errorf("DB_NAME environment variable is required")
+	// }
 	cfg.DBUser = os.Getenv("DB_USER")
 	if cfg.DBUser == "" {
 
