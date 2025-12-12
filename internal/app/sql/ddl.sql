@@ -58,7 +58,7 @@ FOREIGN KEY (batch_id) REFERENCES batches (id)
 CREATE TABLE IF NOT EXISTS meal_access_logs (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     
-    scan_time DATE DEFAULT CURRENT_TIMESTAMP,
+    scan_time DATE NOT NULL,
     status VARCHAR(20) NOT NULL,
     student_id INT NOT NULL,
     cafeteria_id INT NOT NULL,
