@@ -65,7 +65,7 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("DB_USER environment variable is required")
 
 	}
-	cfg.DBPassword = os.Getenv("DB_Password")
+	cfg.DBPassword = os.Getenv("DB_PASSWORD")
 	if cfg.DBPassword == "" {
 
 		return nil, fmt.Errorf("DB_Password environment variable is required")
