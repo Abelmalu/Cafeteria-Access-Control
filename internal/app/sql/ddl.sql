@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS meal_access_logs (
 
 
 ALTER TABLE meals
-DROP INDEX IF EXISTS unique_meal_schedule,
+DROP INDEX  unique_meal_schedule,
 ADD CONSTRAINT unique_meal_schedule
 UNIQUE (`name`, start_time, end_time);
 
