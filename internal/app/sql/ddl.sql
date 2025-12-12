@@ -72,42 +72,42 @@ CREATE TABLE IF NOT EXISTS meal_access_logs (
 );
 
 
--- Altering tables
+-- -- Altering tables
 
 
-ALTER TABLE meals
-DROP INDEX  unique_meal_schedule,
-ADD CONSTRAINT unique_meal_schedule
-UNIQUE (`name`, start_time, end_time);
-
-
-
-ALTER TABLE students 
-DROP INDEX IF EXISTS unique_RFIDTag,
-ADD CONSTRAINT unique_RFIDTag
-UNIQUE(rfid_tag);
+-- ALTER TABLE meals
+-- DROP INDEX  unique_meal_schedule,
+-- ADD CONSTRAINT unique_meal_schedule
+-- UNIQUE (`name`, start_time, end_time);
 
 
 
-ALTER TABLE cafeterias 
-DROP INDEX IF EXISTS unique_cafeteria_name,
-ADD CONSTRAINT unique_cafeteria_name
-UNIQUE(`name`);
+-- ALTER TABLE students 
+-- DROP INDEX IF EXISTS unique_RFIDTag,
+-- ADD CONSTRAINT unique_RFIDTag
+-- UNIQUE(rfid_tag);
 
 
 
-ALTER TABLE batches 
-DROP INDEX unique_batch_name,
-ADD CONSTRAINT unique_batch_name 
-UNIQUE(`name`);
+-- ALTER TABLE cafeterias 
+-- DROP INDEX IF EXISTS unique_cafeteria_name,
+-- ADD CONSTRAINT unique_cafeteria_name
+-- UNIQUE(`name`);
 
 
 
-ALTER TABLE devices 
-DROP INDEX IF EXISTS unique_device_name,
-ADD CONSTRAINT unique_device_name
-UNIQUE (`name`);
+-- ALTER TABLE batches 
+-- DROP INDEX unique_batch_name,
+-- ADD CONSTRAINT unique_batch_name 
+-- UNIQUE(`name`);
 
 
--- CREATE INDEX idx_scan_time
--- ON meal_access_logs(scan_time)
+
+-- ALTER TABLE devices 
+-- DROP INDEX IF EXISTS unique_device_name,
+-- ADD CONSTRAINT unique_device_name
+-- UNIQUE (`name`);
+
+
+-- -- CREATE INDEX idx_scan_time
+-- -- ON meal_access_logs(scan_time)
