@@ -72,8 +72,6 @@ func NewApp() (*App, error) {
 		log.Fatal(migrationsError)
 	}
 
-	
-
 	router := chi.NewRouter()
 
 	// --- 2. CONFIGURE AND USE CORS MIDDLEWARE ---
@@ -306,7 +304,7 @@ func (a *App) CreateDummyMealAcces() {
 // Run starts the HTTP server on the configured port.
 func (a *App) Run() {
 
-	host := "127.0.0.1"
+	host := "0.0.0.0"
 	//host := "192.168.100.169"
 	log.Printf("Server listening on %v :%v", host, a.Config.ServerPort)
 	ServerPort := strconv.Itoa(a.Config.ServerPort)
