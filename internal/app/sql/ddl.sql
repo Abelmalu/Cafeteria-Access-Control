@@ -97,7 +97,7 @@ UNIQUE(`name`);
 
 
 ALTER TABLE batches 
-DROP INDEX IF EXISTS unique_batch_name,
+DROP INDEX unique_batch_name,
 ADD CONSTRAINT unique_batch_name 
 UNIQUE(`name`);
 
