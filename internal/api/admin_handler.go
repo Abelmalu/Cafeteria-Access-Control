@@ -238,7 +238,10 @@ func (h *AdminHandler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
 
-	err := r.ParseMultipartForm(10)
+	err := r.ParseMultipartForm(10 << 20)
+	fmt.Printf("Multipart values: %+v\n", r.MultipartForm.Value)
+
+	fmt.Println("hellow")
 
 	if err != nil {
 
@@ -252,15 +255,15 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(responseJson)
+
+		return
 	}
 
-	student.FirstName = r.FormValue("first_name")
 	student.MiddleName = r.FormValue("middle_name")
 	student.LastName = r.FormValue("last_name")
 	student.RFIDTag = r.FormValue("rfidTag")
 	student.BatchId, _ = strconv.Atoi(r.FormValue("batch_id"))
 	file, handler, err := r.FormFile("photo")
-
 	validationError := student.Validate()
 	if validationError != nil {
 		response := StandardResponse{
@@ -320,7 +323,7 @@ func (h *AdminHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	student.ImageURL = newFilename
-
+	
 	_, err = h.service.CreateStudent(r.Context(), &student)
 	if err != nil {
 

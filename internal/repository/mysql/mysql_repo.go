@@ -50,7 +50,7 @@ func (r *MySqlRepository) CreateStudent(ctx context.Context, student *models.Stu
 			case 1062:
 				return nil, errors.New("Student already exists with this rfid tag")
 			default:
-				return nil, errors.New("try again!something wrong")
+				return nil, err
 			}
 
 		}

@@ -1,0 +1,32 @@
+# Ignore the local binary so Docker is forced to build its own inside the container
+cafeteria
+*.exe
+
+# Ignore Git metadata (makes the build faster)
+.git
+.gitignore
+
+# Ignore environment secrets
+.env
+
+# Ignore local caches
+vendor/
+bin/
+
+.env
+.env.local
+.idea/
+.vscode/
+*.swp
+/bin/
+/pkg/
+*.test
+*.dll
+*.so
+*.dylib
+*.out
+/vendor/
+/uploads/
+.air.toml
+/tmp/
+/cmd/api/tmp/

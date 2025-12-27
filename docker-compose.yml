@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+
+    ports:
+      - "8080:8080"
+    
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_TYPE: ${DB_TYPE}
+      UPLOAD_DIR: ${UPLOAD_DIR}
+      PUBLIC_PREFIX: ${PUBLIC_PREFIX}
+      BASE_URL: ${BASE_URL}
+      SERVER_PORT: ${SERVER_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+   
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password-123 
+      MYSQL_DATABASE: cafeteria
+
+    volumes:
+      - mysql_data:/var/lib/mysql # MySQL stores data in /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-ppassword-123"]
+      interval: 10s   # How often to check
+      timeout: 5s    # How long to wait for a response
+      retries: 5     # How many times to fail before giving up
+      start_period: 30s # Give MySQL time to do its initial setup
+    # --- HEALTHCHECK END ---
+
+
+volumes:
+  mysql_data:
+    external: true #tells docker compose not to create the volume but use existing one 

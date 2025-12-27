@@ -60,7 +60,7 @@ func (mh *MealAccessHandler) AttemptAccess(w http.ResponseWriter, r *http.Reques
 	}
 	fmt.Println("reached after calling service")
 
-	student.ImageURL = os.Getenv("BASE_URL") + os.Getenv("PUBLIC_PREFIX") + student.ImageURL
+	student.ImageURL = os.Getenv("BASE_URL") + "/" + os.Getenv("PUBLIC_PREFIX") + student.ImageURL
 	fmt.Println("reached after calling service and trying to send image")
 	print("printing the image url")
 	fmt.Println(student.ImageURL)

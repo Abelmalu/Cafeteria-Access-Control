@@ -6,6 +6,9 @@
 /bin/
 /pkg/
 *.test
+*.dll
+*.so
+*.dylib
 *.out
 /vendor/
 /uploads/
