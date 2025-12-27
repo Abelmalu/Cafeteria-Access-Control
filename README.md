@@ -78,6 +78,19 @@ A Go-based service for managing and logging access to cafeteria meals using RFID
    - `/static/*` - Serve embedded static assets.
    - `/uploads/*` - Serve uploaded files.
 
+## Production with Docker
+
+1. **Prerequisites:** Ensure you have Docker and Docker Compose installed.
+2. **Create necessary volume:**
+   ```bash
+   docker volume create mysql_data
+   ```
+3. **Run the application:**
+   ```bash
+   docker-compose up --build
+   ```
+   The application will be accessible at `http://localhost:8080`.
+
 ## Architecture & Project Structure
 
 This project follows the **Standard Go Project Layout** and implements **Clean Architecture** principles to ensure separation of concerns, testability, and maintainability.
