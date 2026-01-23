@@ -1,4 +1,7 @@
 # Cafeteria Access Control
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go)
+![Gin](https://img.shields.io/badge/Gin-Framework-00ADD8?style=for-the-badge&logo=go)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-v15+-336791?style=for-the-badge&logo=postgresql)
 
 A Go-based service for managing and logging access to cafeteria meals using RFID tags. This system supports handling students, meals, cafeterias, and devices with a flexible database layer (MySQL or PostgreSQL).
 
